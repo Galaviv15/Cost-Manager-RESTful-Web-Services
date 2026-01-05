@@ -30,9 +30,9 @@ const teamMembers = [
     email: 'barbibi@gmail.com'
   },
   {
-    name: 'Ofir Avisrur',
+    name: 'Ofir Avisror',
     role: 'Backend Developer',
-    email: 'ofiravisrur@gmail.com'
+    email: 'ofiravisror@gmail.com'
   },
 ];
 
