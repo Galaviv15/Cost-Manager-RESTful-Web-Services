@@ -56,9 +56,14 @@ PORT_REPORT=3002
 PORT_ADMIN=3003
 NODE_ENV=development
 LOG_LEVEL=info
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=7d
 ```
 
-**Note:** Replace the MongoDB URI with your actual MongoDB Atlas connection string.
+**Note:** 
+- Replace the MongoDB URI with your actual MongoDB Atlas connection string.
+- Change JWT_SECRET to a secure random string in production.
+- JWT_EXPIRES_IN specifies token expiration (default: 7d).
 
 ### 3. Start the Services
 
@@ -82,8 +87,91 @@ npm run start:admin
 
 ### User Management Service (Port 3000)
 
-#### POST /api/add - Create User
-Creates a new user in the system.
+#### POST /api/register - Register New User
+Registers a new user with email and password (returns JWT token).
+
+**Request Body:**
+```json
+{
+  "id": 123123,
+  "first_name": "mosh",
+  "last_name": "israeli",
+  "birthday": "1990-05-15",
+  "email": "mosh@example.com",
+  "password": "password123"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "user": {
+    "id": 123123,
+    "first_name": "mosh",
+    "last_name": "israeli",
+    "birthday": "1990-05-15T00:00:00.000Z",
+    "email": "mosh@example.com",
+    "_id": "..."
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### POST /api/login - Login
+Login with email and password (returns JWT token).
+
+**Request Body:**
+```json
+{
+  "email": "mosh@example.com",
+  "password": "password123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "user": {
+    "id": 123123,
+    "first_name": "mosh",
+    "last_name": "israeli",
+    "email": "mosh@example.com"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Error Response (401 Unauthorized):**
+```json
+{
+  "id": "UNAUTHORIZED",
+  "message": "Invalid email or password"
+}
+```
+
+#### GET /api/users/me - Get Current User
+Get current authenticated user's details (requires authentication).
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": 123123,
+  "first_name": "mosh",
+  "last_name": "israeli",
+  "email": "mosh@example.com",
+  "total_income": 5000,
+  "total_expenses": 2500,
+  "balance": 2500
+}
+```
+
+#### POST /api/add - Create User (Backward Compatibility)
+Creates a new user without authentication (for backward compatibility).
 
 **Request Body:**
 ```json
@@ -105,14 +193,6 @@ Creates a new user in the system.
   "_id": "...",
   "createdAt": "...",
   "updatedAt": "..."
-}
-```
-
-**Error Response (400 Bad Request):**
-```json
-{
-  "id": "VALIDATION_ERROR",
-  "message": "Missing required fields: id, first_name, last_name, and birthday are required"
 }
 ```
 

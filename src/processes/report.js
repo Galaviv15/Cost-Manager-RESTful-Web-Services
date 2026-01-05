@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const pinoHttp = require('pino-http');
 const { connectDB } = require('../config/database');
-const Cost = require('../models/Cost');
+const Transaction = require('../models/Transaction');
 const Report = require('../models/Report');
 const User = require('../models/User');
 const { logger } = require('../config/logger');
 const { mongoLoggingMiddleware, logEndpointAccess } = require('../middleware/logging');
+const { optionalAuth } = require('../middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT_REPORT || 3002;
@@ -28,7 +29,7 @@ function isCurrentMonth(year, month) {
 }
 
 /**
- * Helper function to generate report from costs
+ * Helper function to generate report from transactions
  * This function implements the Computed Design Pattern by generating
  * reports that can be cached for past months
  */
@@ -37,38 +38,72 @@ async function generateReport(userid, year, month) {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    const costs = await Cost.find({
+    const transactions = await Transaction.find({
       userid,
       created_at: { $gte: startDate, $lte: endDate }
     });
 
-    // Group by category - format must match specification exactly
-    const categories = ['food', 'education', 'health', 'housing', 'sports'];
-    const costsArray = [];
+    // Separate income and expenses
+    const expenses = transactions.filter(t => t.type === 'expense');
+    const incomes = transactions.filter(t => t.type === 'income');
 
-    categories.forEach(category => {
-      const categoryCosts = costs.filter(c => c.category === category);
-      const categoryData = categoryCosts.map(c => {
-        // Extract day of month from created_at
-        const day = new Date(c.created_at).getDate();
+    // Expense categories
+    const expenseCategories = ['food', 'education', 'health', 'housing', 'sports'];
+    const expensesArray = [];
+
+    expenseCategories.forEach(category => {
+      const categoryExpenses = expenses.filter(e => e.category === category);
+      const categoryData = categoryExpenses.map(e => {
+        const day = new Date(e.created_at).getDate();
         return {
-          sum: c.sum,
-          description: c.description,
+          sum: e.sum,
+          description: e.description,
           day: day
         };
       });
       
-      // Create object with category as key
       const categoryObject = {};
       categoryObject[category] = categoryData;
-      costsArray.push(categoryObject);
+      expensesArray.push(categoryObject);
     });
+
+    // Income categories
+    const incomeCategories = ['salary', 'freelance', 'investment', 'business', 'gift', 'other'];
+    const incomeArray = [];
+
+    incomeCategories.forEach(category => {
+      const categoryIncomes = incomes.filter(i => i.category === category);
+      const categoryData = categoryIncomes.map(i => {
+        const day = new Date(i.created_at).getDate();
+        return {
+          sum: i.sum,
+          description: i.description,
+          day: day
+        };
+      });
+      
+      const categoryObject = {};
+      categoryObject[category] = categoryData;
+      incomeArray.push(categoryObject);
+    });
+
+    // Calculate totals
+    const totalExpenses = expenses.reduce((sum, e) => sum + e.sum, 0);
+    const totalIncome = incomes.reduce((sum, i) => sum + i.sum, 0);
+    const balance = totalIncome - totalExpenses;
 
     return {
       userid: userid,
       year: year,
       month: month,
-      costs: costsArray
+      expenses: expensesArray, // Keep 'expenses' for backward compatibility
+      costs: expensesArray, // Keep 'costs' for backward compatibility
+      income: incomeArray,
+      summary: {
+        total_income: totalIncome,
+        total_expenses: totalExpenses,
+        balance: balance
+      }
     };
   } catch (error) {
     logger.error('Error generating report:', error.message);

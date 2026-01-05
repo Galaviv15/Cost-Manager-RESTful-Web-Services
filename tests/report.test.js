@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Cost = require('../src/models/Cost');
+const Transaction = require('../src/models/Transaction');
 const Report = require('../src/models/Report');
 const app = require('../src/processes/report');
 
@@ -19,7 +19,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Cost.deleteMany({});
+    await Transaction.deleteMany({});
     await Report.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
@@ -48,8 +48,9 @@ describe('Report Endpoints', () => {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      // Create test costs
-      await Cost.create({
+      // Create test transactions
+      await Transaction.create({
+        type: 'expense',
         description: 'Lunch',
         category: 'food',
         userid: 1,
@@ -57,7 +58,8 @@ describe('Report Endpoints', () => {
         created_at: new Date(year, month - 1, 15)
       });
 
-      await Cost.create({
+      await Transaction.create({
+        type: 'expense',
         description: 'Book',
         category: 'education',
         userid: 1,
@@ -72,8 +74,13 @@ describe('Report Endpoints', () => {
       expect(response.body).toHaveProperty('userid', 1);
       expect(response.body).toHaveProperty('year', year);
       expect(response.body).toHaveProperty('month', month);
-      expect(response.body).toHaveProperty('costs');
+      expect(response.body).toHaveProperty('costs'); // Backward compatibility
+      expect(response.body).toHaveProperty('expenses');
+      expect(response.body).toHaveProperty('income');
+      expect(response.body).toHaveProperty('summary');
       expect(Array.isArray(response.body.costs)).toBe(true);
+      expect(Array.isArray(response.body.expenses)).toBe(true);
+      expect(Array.isArray(response.body.income)).toBe(true);
     });
 
     test('should return all categories even when empty', async () => {
@@ -85,9 +92,11 @@ describe('Report Endpoints', () => {
         .get(`/api/report?id=1&year=${year}&month=${month}`)
         .expect(200);
 
-      expect(response.body.costs.length).toBe(5); // All 5 categories
-      const categories = ['food', 'education', 'health', 'housing', 'sports'];
-      categories.forEach(category => {
+      expect(response.body.costs.length).toBe(5); // All 5 expense categories
+      expect(response.body.expenses.length).toBe(5);
+      expect(response.body.income.length).toBe(6); // All 6 income categories
+      const expenseCategories = ['food', 'education', 'health', 'housing', 'sports'];
+      expenseCategories.forEach(category => {
         const categoryObj = response.body.costs.find(c => c[category] !== undefined);
         expect(categoryObj).toBeDefined();
         expect(Array.isArray(categoryObj[category])).toBe(true);
@@ -131,7 +140,8 @@ describe('Report Endpoints', () => {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      await Cost.create({
+      await Transaction.create({
+        type: 'expense',
         description: 'Lunch',
         category: 'food',
         userid: 1,
@@ -168,9 +178,10 @@ describe('Report Endpoints', () => {
       // Convert to 1-12 format for API (pastMonthIndex is 0-11, we need 1-12)
       const pastMonth = pastMonthIndex + 1;
 
-      // Create cost in past month (Date constructor uses 0-11 for months)
-      await Cost.create({
-        description: 'Past cost',
+      // Create transaction in past month (Date constructor uses 0-11 for months)
+      await Transaction.create({
+        type: 'expense',
+        description: 'Past expense',
         category: 'food',
         userid: 1,
         sum: 50,

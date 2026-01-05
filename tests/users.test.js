@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Cost = require('../src/models/Cost');
+const Transaction = require('../src/models/Transaction');
 const app = require('../src/processes/users');
 
 // Test database connection
@@ -20,7 +20,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Cost.deleteMany({});
+    await Transaction.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -167,15 +167,17 @@ describe('User Endpoints', () => {
         birthday: new Date('1990-01-01')
       });
 
-      // Create costs for user
-      await Cost.create({
+      // Create transactions for user
+      await Transaction.create({
+        type: 'expense',
         description: 'Lunch',
         category: 'food',
         userid: 1,
         sum: 50
       });
 
-      await Cost.create({
+      await Transaction.create({
+        type: 'expense',
         description: 'Book',
         category: 'education',
         userid: 1,
@@ -189,7 +191,10 @@ describe('User Endpoints', () => {
       expect(response.body).toHaveProperty('id', 1);
       expect(response.body).toHaveProperty('first_name', 'John');
       expect(response.body).toHaveProperty('last_name', 'Doe');
-      expect(response.body).toHaveProperty('total', 150);
+      expect(response.body).toHaveProperty('total', 150); // Backward compatibility
+      expect(response.body).toHaveProperty('total_expenses', 150);
+      expect(response.body).toHaveProperty('total_income', 0);
+      expect(response.body).toHaveProperty('balance', -150);
     });
 
     test('should return error when user not found', async () => {
