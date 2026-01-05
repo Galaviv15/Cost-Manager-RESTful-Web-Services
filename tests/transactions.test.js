@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Transaction = require('../src/models/Transaction');
-const app = require('../src/processes/transactions');
+const app = require('../app_transactions');
 
 // Test database connection
 beforeAll(async () => {

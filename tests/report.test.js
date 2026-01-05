@@ -4,7 +4,7 @@ const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Transaction = require('../src/models/Transaction');
 const Report = require('../src/models/Report');
-const app = require('../src/processes/report');
+const app = require('../app_report');
 
 // Test database connection
 beforeAll(async () => {

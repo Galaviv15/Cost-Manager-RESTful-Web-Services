@@ -2,8 +2,8 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Cost = require('../src/models/Cost');
-const app = require('../src/processes/costs');
+const Transaction = require('../src/models/Transaction');
+const app = require('../app_transactions');
 
 // Test database connection
 beforeAll(async () => {
@@ -18,7 +18,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Cost.deleteMany({});
+    await Transaction.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -43,6 +43,7 @@ describe('Cost Endpoints', () => {
   describe('POST /api/add', () => {
     test('should create a new cost with valid data', async () => {
       const costData = {
+        type: 'expense',
         description: 'Lunch at restaurant',
         category: 'food',
         userid: 1,
@@ -72,6 +73,7 @@ describe('Cost Endpoints', () => {
 
     test('should return error when category is invalid', async () => {
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'invalid_category',
         userid: 1,
@@ -88,6 +90,7 @@ describe('Cost Endpoints', () => {
 
     test('should return error when user does not exist', async () => {
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 999,
@@ -104,6 +107,7 @@ describe('Cost Endpoints', () => {
 
     test('should return error when sum is negative', async () => {
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 1,
@@ -120,6 +124,7 @@ describe('Cost Endpoints', () => {
 
     test('should return error when sum is not a number', async () => {
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 1,
@@ -139,6 +144,7 @@ describe('Cost Endpoints', () => {
       pastDate.setDate(pastDate.getDate() - 1); // Yesterday
 
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 1,
@@ -160,6 +166,7 @@ describe('Cost Endpoints', () => {
       futureDate.setDate(futureDate.getDate() + 1); // Tomorrow
 
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 1,
@@ -177,6 +184,7 @@ describe('Cost Endpoints', () => {
 
     test('should use current date when created_at is not provided', async () => {
       const costData = {
+        type: 'expense',
         description: 'Test',
         category: 'food',
         userid: 1,
@@ -200,6 +208,7 @@ describe('Cost Endpoints', () => {
 
       for (const category of categories) {
         const costData = {
+          type: 'expense',
           description: `Test ${category}`,
           category: category,
           userid: 1,

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Transaction = require('../src/models/Transaction');
-const app = require('../src/processes/users');
+const app = require('../app_users');
 
 // Test database connection
 beforeAll(async () => {
@@ -121,12 +121,14 @@ describe('User Endpoints', () => {
   describe('GET /api/users', () => {
     test('should return all users', async () => {
       // Create test users with unique emails to avoid sparse index issues
+      // Note: Users with email don't need password if created directly (not through API)
       await User.create({
         id: 1,
         first_name: 'John',
         last_name: 'Doe',
         birthday: new Date('1990-01-01'),
-        email: 'john@example.com'
+        email: 'john@example.com',
+        password: 'password123' // Required when email is provided
       });
 
       await User.create({
@@ -134,7 +136,8 @@ describe('User Endpoints', () => {
         first_name: 'Jane',
         last_name: 'Smith',
         birthday: new Date('1992-05-15'),
-        email: 'jane@example.com'
+        email: 'jane@example.com',
+        password: 'password123' // Required when email is provided
       });
 
       const response = await request(app)
