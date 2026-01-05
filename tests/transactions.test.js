@@ -383,6 +383,94 @@ describe('Transaction Endpoints', () => {
 
       expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
     });
+
+    test('should create transaction with userid from token when authenticated', async () => {
+      // Register a user
+      const userApp = require('../app_users');
+      const registerResponse = await request(userApp)
+        .post('/api/register')
+        .send({
+          id: 2,
+          first_name: 'Jane',
+          last_name: 'Smith',
+          birthday: '1992-05-15',
+          email: 'jane@example.com',
+          password: 'password123'
+        })
+        .expect(201);
+
+      const token = registerResponse.body.token;
+
+      const transactionData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        sum: 100
+        // userid not provided - should be taken from token
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(transactionData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('userid', 2);
+      expect(response.body).toHaveProperty('type', 'expense');
+      expect(response.body).toHaveProperty('description', 'Lunch');
+    });
+
+    test('should use userid from body when not authenticated (backward compatibility)', async () => {
+      const transactionData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 1,
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(transactionData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('userid', 1);
+    });
+
+    test('should prefer userid from token over body when authenticated', async () => {
+      // Register a user
+      const userApp = require('../app_users');
+      const registerResponse = await request(userApp)
+        .post('/api/register')
+        .send({
+          id: 2,
+          first_name: 'Jane',
+          last_name: 'Smith',
+          birthday: '1992-05-15',
+          email: 'jane@example.com',
+          password: 'password123'
+        })
+        .expect(201);
+
+      const token = registerResponse.body.token;
+
+      const transactionData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 999, // Different userid in body
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(transactionData)
+        .expect(201);
+
+      // Should use userid from token, not from body
+      expect(response.body).toHaveProperty('userid', 2);
+    });
   });
 });
 

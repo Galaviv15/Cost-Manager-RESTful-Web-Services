@@ -99,7 +99,7 @@ async function getGoals(req, res) {
 async function updateGoal(req, res) {
   try {
     const { id } = req.params;
-    const { target_amount, current_amount, deadline, status } = req.body;
+    const { target_amount, current_amount, deadline, status, currency } = req.body;
 
     if (target_amount !== undefined && (!validatePositiveNumber(target_amount) || target_amount <= 0)) {
       return res.status(400).json({ 

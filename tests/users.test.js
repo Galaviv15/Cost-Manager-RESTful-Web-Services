@@ -232,5 +232,310 @@ describe('User Endpoints', () => {
       expect(response.body).toHaveProperty('total', 0);
     });
   });
+
+  describe('POST /api/register', () => {
+    test('should register a new user with valid data', async () => {
+      const userData = {
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: '1992-05-15',
+        email: 'jane@example.com',
+        password: 'password123'
+      };
+
+      const response = await request(app)
+        .post('/api/register')
+        .send(userData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('user');
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user).toHaveProperty('id', 2);
+      expect(response.body.user).toHaveProperty('email', 'jane@example.com');
+      expect(response.body.user).not.toHaveProperty('password');
+    });
+
+    test('should return error when required fields are missing', async () => {
+      const response = await request(app)
+        .post('/api/register')
+        .send({ id: 2 })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when email format is invalid', async () => {
+      const userData = {
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: '1992-05-15',
+        email: 'invalid-email',
+        password: 'password123'
+      };
+
+      const response = await request(app)
+        .post('/api/register')
+        .send(userData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when password is too short', async () => {
+      const userData = {
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: '1992-05-15',
+        email: 'jane@example.com',
+        password: '12345'
+      };
+
+      const response = await request(app)
+        .post('/api/register')
+        .send(userData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when user with same id already exists', async () => {
+      await User.create({
+        id: 2,
+        first_name: 'John',
+        last_name: 'Doe',
+        birthday: new Date('1990-01-01')
+      });
+
+      const userData = {
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: '1992-05-15',
+        email: 'jane@example.com',
+        password: 'password123'
+      };
+
+      const response = await request(app)
+        .post('/api/register')
+        .send(userData)
+        .expect(409);
+
+      expect(response.body).toHaveProperty('id', 'DUPLICATE_ERROR');
+    });
+
+    test('should return error when user with same email already exists', async () => {
+      await User.create({
+        id: 2,
+        first_name: 'John',
+        last_name: 'Doe',
+        birthday: new Date('1990-01-01'),
+        email: 'jane@example.com',
+        password: 'password123'
+      });
+
+      const userData = {
+        id: 3,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: '1992-05-15',
+        email: 'jane@example.com',
+        password: 'password123'
+      };
+
+      const response = await request(app)
+        .post('/api/register')
+        .send(userData)
+        .expect(409);
+
+      expect(response.body).toHaveProperty('id', 'DUPLICATE_ERROR');
+    });
+  });
+
+  describe('POST /api/login', () => {
+    beforeEach(async () => {
+      // Create a user with email and password for login tests
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: new Date('1992-05-15'),
+        email: 'jane@example.com',
+        password: hashedPassword
+      });
+    });
+
+    test('should login with valid credentials', async () => {
+      const response = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'jane@example.com',
+          password: 'password123'
+        })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('user');
+      expect(response.body).toHaveProperty('token');
+      expect(response.body.user).toHaveProperty('email', 'jane@example.com');
+      expect(response.body.user).not.toHaveProperty('password');
+    });
+
+    test('should return error when email is missing', async () => {
+      const response = await request(app)
+        .post('/api/login')
+        .send({ password: 'password123' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when password is missing', async () => {
+      const response = await request(app)
+        .post('/api/login')
+        .send({ email: 'jane@example.com' })
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when email does not exist', async () => {
+      const response = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'nonexistent@example.com',
+          password: 'password123'
+        })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('id', 'UNAUTHORIZED');
+    });
+
+    test('should return error when password is incorrect', async () => {
+      const response = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'jane@example.com',
+          password: 'wrongpassword'
+        })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('id', 'UNAUTHORIZED');
+    });
+
+    test('should return error when user does not have password (not registered)', async () => {
+      // Create user without password
+      await User.create({
+        id: 3,
+        first_name: 'Bob',
+        last_name: 'Jones',
+        birthday: new Date('1985-03-20')
+      });
+
+      const response = await request(app)
+        .post('/api/login')
+        .send({
+          email: 'bob@example.com',
+          password: 'password123'
+        })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('id', 'UNAUTHORIZED');
+    });
+  });
+
+  describe('GET /api/users/me', () => {
+    test('should return current user when authenticated', async () => {
+      // Register a user first
+      const registerResponse = await request(app)
+        .post('/api/register')
+        .send({
+          id: 3,
+          first_name: 'Bob',
+          last_name: 'Jones',
+          birthday: '1985-03-20',
+          email: 'bob@example.com',
+          password: 'password123'
+        })
+        .expect(201);
+
+      const token = registerResponse.body.token;
+
+      // Get current user
+      const response = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('id', 3);
+      expect(response.body).toHaveProperty('first_name', 'Bob');
+      expect(response.body).toHaveProperty('email', 'bob@example.com');
+      expect(response.body).not.toHaveProperty('password');
+    });
+
+    test('should return user with transaction totals when authenticated', async () => {
+      // Register a user
+      const registerResponse = await request(app)
+        .post('/api/register')
+        .send({
+          id: 4,
+          first_name: 'Alice',
+          last_name: 'Brown',
+          birthday: '1990-01-01',
+          email: 'alice@example.com',
+          password: 'password123'
+        })
+        .expect(201);
+
+      const token = registerResponse.body.token;
+
+      // Create transactions
+      await Transaction.create({
+        type: 'income',
+        description: 'Salary',
+        category: 'salary',
+        userid: 4,
+        sum: 5000
+      });
+
+      await Transaction.create({
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 4,
+        sum: 100
+      });
+
+      // Get current user
+      const response = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('total_income', 5000);
+      expect(response.body).toHaveProperty('total_expenses', 100);
+      expect(response.body).toHaveProperty('balance', 4900);
+    });
+
+    test('should return error when not authenticated', async () => {
+      const response = await request(app)
+        .get('/api/users/me')
+        .expect(401);
+
+      expect(response.body).toHaveProperty('id', 'UNAUTHORIZED');
+    });
+
+    test('should return error when token is invalid', async () => {
+      const response = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', 'Bearer invalid-token')
+        .expect(401);
+
+      expect(response.body).toHaveProperty('id', 'UNAUTHORIZED');
+    });
+  });
 });
 
