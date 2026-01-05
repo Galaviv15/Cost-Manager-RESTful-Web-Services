@@ -23,7 +23,11 @@ async function connectDB() {
     logger.info('MongoDB connection successful');
   } catch (error) {
     logger.error('MongoDB connection failed:', error.message);
-    process.exit(1);
+    // Don't exit in test environment
+    if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
+      process.exit(1);
+    }
+    throw error;
   }
 }
 

@@ -2,13 +2,16 @@
   "name": "cost-manager",
   "version": "1.0.0",
   "description": "RESTful Web Service for Cost Manager application",
-  "main": "app_users.js",
+  "main": "src/processes/users.js",
   "scripts": {
     "start:users": "node app_users.js",
     "start:costs": "node app_costs.js",
     "start:report": "node app_report.js",
     "start:admin": "node app_admin.js",
-    "dev": "concurrently \"npm run start:users\" \"npm run start:costs\" \"npm run start:report\" \"npm run start:admin\""
+    "dev": "concurrently \"npm run start:users\" \"npm run start:costs\" \"npm run start:report\" \"npm run start:admin\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "cost",
@@ -28,6 +31,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "nodemon": "^3.0.1"
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
   }
 }
