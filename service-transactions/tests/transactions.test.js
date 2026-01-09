@@ -1,5 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Transaction = require('../src/models/Transaction');
@@ -399,6 +401,82 @@ describe('Transaction Endpoints', () => {
         .expect(201);
 
       expect(response.body).toHaveProperty('userid', 1);
+    });
+
+    test('should create transaction with userid from token when authenticated', async () => {
+      // Create a user with email and password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: new Date('1992-05-15'),
+        email: 'jane@example.com',
+        password: hashedPassword
+      });
+
+      // Generate JWT token (same format as service-users)
+      const token = jwt.sign(
+        { userId: 2, email: 'jane@example.com' },
+        process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      const transactionData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        sum: 100
+        // userid not provided - should be taken from token
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(transactionData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('userid', 2);
+      expect(response.body).toHaveProperty('type', 'expense');
+      expect(response.body).toHaveProperty('description', 'Lunch');
+    });
+
+    test('should prefer userid from token over body when authenticated', async () => {
+      // Create a user with email and password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: new Date('1992-05-15'),
+        email: 'jane@example.com',
+        password: hashedPassword
+      });
+
+      // Generate JWT token (same format as service-users)
+      const token = jwt.sign(
+        { userId: 2, email: 'jane@example.com' },
+        process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      const transactionData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 999, // Different userid in body - should be ignored
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(transactionData)
+        .expect(201);
+
+      // Should use userid from token (2), not from body (999)
+      expect(response.body).toHaveProperty('userid', 2);
+      expect(response.body.userid).not.toBe(999);
     });
   });
 });
