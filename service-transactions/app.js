@@ -7,7 +7,7 @@ const { mongoLoggingMiddleware } = require('./src/middleware/logging');
 const transactionsRoutes = require('./src/routes/transactions.routes');
 
 const app = express();
-const PORT = process.env.PORT || process.env.PORT_TRANSACTIONS || process.env.PORT_COSTS || 3001;
+const PORT = process.env.PORT || process.env.PORT_TRANSACTIONS || process.env.PORT_COSTS || 3007;
 
 // Middleware
 app.use(express.json());
