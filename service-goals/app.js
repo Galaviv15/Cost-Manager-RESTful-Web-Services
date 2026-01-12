@@ -17,6 +17,15 @@ app.use(mongoLoggingMiddleware);
 // Connect to database
 connectDB();
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'goals',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use('/', goalsRoutes);
 
