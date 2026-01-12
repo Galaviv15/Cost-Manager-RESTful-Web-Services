@@ -7,7 +7,7 @@ const { mongoLoggingMiddleware, logEndpointAccess } = require('./src/middleware/
 const Cost = require('./src/models/Cost');
 
 const app = express();
-const PORT = process.env.PORT_COSTS || 3007;
+const PORT = process.env.PORT || process.env.PORT_COSTS || 3007;
 
 // Middleware
 app.use(express.json());
@@ -16,6 +16,15 @@ app.use(mongoLoggingMiddleware);
 
 // Connect to database
 connectDB();
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'costs',
+    timestamp: new Date().toISOString()
+  });
+});
 
 /**
  * POST /api/add
