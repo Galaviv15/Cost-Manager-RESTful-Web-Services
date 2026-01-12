@@ -1,5 +1,6 @@
 const Log = require('../models/Log');
 const { logger } = require('../config/logger');
+const { mongoose } = require('../config/database');
 
 /**
  * Get next log ID by finding the maximum existing ID
@@ -21,8 +22,15 @@ async function getNextLogId() {
 /**
  * Save log entry to MongoDB
  * This function saves log entries to the logs collection
+ * Only attempts to save if MongoDB is connected
  */
 async function saveLogToMongoDB(logData) {
+  // Check if MongoDB is connected before attempting to save
+  if (mongoose.connection.readyState !== 1) {
+    // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    return; // Silently skip logging if MongoDB is not connected
+  }
+
   try {
     const logId = await getNextLogId();
     const logEntry = new Log({
@@ -41,7 +49,7 @@ async function saveLogToMongoDB(logData) {
     // If saving to MongoDB fails, log to console
     // but don't throw to avoid breaking the application
     // This is expected in test environment when duplicate keys occur
-    if (!error.message.includes('duplicate key')) {
+    if (!error.message.includes('duplicate key') && !error.message.includes('buffering timed out')) {
       console.error('Failed to save log to MongoDB:', error.message);
     }
   }
