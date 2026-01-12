@@ -7,7 +7,7 @@ const { mongoLoggingMiddleware } = require('./src/middleware/logging');
 const reportsRoutes = require('./src/routes/reports.routes');
 
 const app = express();
-const PORT = process.env.PORT_REPORT || 3002;
+const PORT = process.env.PORT || process.env.PORT_REPORT || 3002;
 
 // Middleware
 app.use(express.json());
@@ -16,6 +16,15 @@ app.use(mongoLoggingMiddleware);
 
 // Connect to database
 connectDB();
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'report',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Routes
 app.use('/', reportsRoutes);
