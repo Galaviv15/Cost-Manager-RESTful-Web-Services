@@ -12,7 +12,13 @@ async function connectDB() {
     const mongoUri = process.env.MONGO_URI;
     
     if (!mongoUri) {
-      throw new Error('MONGO_URI is not defined in environment variables');
+      logger.error('MONGO_URI is not defined in environment variables');
+      // Don't exit - allow server to start and retry connection later
+      if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
+        // Retry connection after a delay
+        setTimeout(() => connectDB(), 5000);
+      }
+      return;
     }
 
     await mongoose.connect(mongoUri, {
@@ -23,11 +29,13 @@ async function connectDB() {
     logger.info('MongoDB connection successful');
   } catch (error) {
     logger.error('MongoDB connection failed:', error.message);
-    // Don't exit in test environment
+    // Don't exit - allow server to start and retry connection later
     if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
-      process.exit(1);
+      // Retry connection after a delay
+      setTimeout(() => connectDB(), 5000);
+    } else {
+      throw error;
     }
-    throw error;
   }
 }
 
