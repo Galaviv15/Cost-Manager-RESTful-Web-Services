@@ -7,7 +7,7 @@ const { mongoLoggingMiddleware } = require('./src/middleware/logging');
 const analyticsRoutes = require('./src/routes/analytics.routes');
 
 const app = express();
-const PORT = process.env.PORT || process.env.PORT_ANALYTICS || 3006;
+const PORT = process.env.PORT_ANALYTICS || 3006;
 
 // Middleware
 app.use(express.json());

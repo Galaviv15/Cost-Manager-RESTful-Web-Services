@@ -7,7 +7,7 @@ const { logger } = require('../config/logger');
 const { mongoLoggingMiddleware, logEndpointAccess } = require('../middleware/logging');
 
 const app = express();
-const PORT = process.env.PORT || process.env.PORT_COSTS || 3001;
+const PORT = process.env.PORT_COSTS || 3001;
 
 // Middleware
 app.use(express.json());
