@@ -205,6 +205,43 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 
 ## Costs Service
 
+### GET Requests (Open in Browser)
+
+#### Get All Costs for User
+- **Get all costs for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1`
+- **Get all costs for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=2`
+- **Get all costs for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=15`
+- **Get all costs for user 20**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=20`
+
+#### Get Costs with Filters
+- **Get expenses only**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&type=expense`
+- **Get income only**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&type=income`
+- **Get costs by category (food)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&category=food`
+- **Get costs by category (health)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&category=health`
+- **Get costs by category (salary)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&category=salary&type=income`
+- **Get recurring costs**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&recurring=true`
+- **Get costs with date range**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&startDate=2025-01-01&endDate=2025-01-31`
+- **Get costs with tags**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&tags=urgent,important`
+- **Get costs with pagination**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs?userid=1&limit=10&skip=0`
+
+#### Get Cost by ID
+- **Get cost by ID** (use the _id from the costs list): `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs/69655e6c65b983e0277d0f4a`
+
+**Query Parameters**:
+- `userid` (required): User ID (1-20) - or use authentication token
+- `type` (optional): Filter by type - "income" or "expense"
+- `category` (optional): Filter by category
+  - For expenses: food, health, housing, sports, education
+  - For income: salary, freelance, investment, business, gift, other
+- `startDate` (optional): Start date for date range filter (ISO format: YYYY-MM-DD)
+- `endDate` (optional): End date for date range filter (ISO format: YYYY-MM-DD)
+- `tags` (optional): Comma-separated list of tags to filter by (e.g., "urgent,important")
+- `recurring` (optional): Filter recurring costs - "true" or "false"
+- `limit` (optional): Maximum number of results (default: 100)
+- `skip` (optional): Number of results to skip for pagination (default: 0)
+
+**Note**: When authenticated (using token), `userid` is optional and will use the authenticated user's ID.
+
 ### POST Requests (Use Postman/cURL)
 
 #### Create Cost (Expense)
@@ -254,7 +291,203 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 }
 ```
 
-**Note**:
+#### Create Cost with Tags
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
+```json
+{
+  "type": "expense",
+  "description": "Gym membership",
+  "category": "sports",
+  "userid": 1,
+  "sum": 200,
+  "currency": "ILS",
+  "payment_method": "credit_card",
+  "tags": ["fitness", "monthly", "important"]
+}
+```
+
+#### Create Recurring Cost
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
+```json
+{
+  "type": "expense",
+  "description": "Monthly rent",
+  "category": "housing",
+  "userid": 1,
+  "sum": 3000,
+  "currency": "ILS",
+  "payment_method": "credit_card",
+  "recurring": {
+    "enabled": true,
+    "frequency": "monthly",
+    "next_date": "2025-02-01"
+  }
+}
+```
+
+#### Create Cost with Future Date
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
+```json
+{
+  "type": "expense",
+  "description": "Planned vacation",
+  "category": "other",
+  "userid": 1,
+  "sum": 5000,
+  "currency": "ILS",
+  "payment_method": "credit_card",
+  "created_at": "2025-06-15"
+}
+```
+
+#### All Expense Categories Examples
+
+**Food**:
+```json
+{
+  "type": "expense",
+  "description": "Restaurant dinner",
+  "category": "food",
+  "userid": 1,
+  "sum": 150,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+**Health**:
+```json
+{
+  "type": "expense",
+  "description": "Doctor visit",
+  "category": "health",
+  "userid": 1,
+  "sum": 300,
+  "currency": "ILS",
+  "payment_method": "cash"
+}
+```
+
+**Housing**:
+```json
+{
+  "type": "expense",
+  "description": "Electricity bill",
+  "category": "housing",
+  "userid": 1,
+  "sum": 450,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+**Sports**:
+```json
+{
+  "type": "expense",
+  "description": "Gym membership",
+  "category": "sports",
+  "userid": 1,
+  "sum": 200,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+**Education**:
+```json
+{
+  "type": "expense",
+  "description": "Online course",
+  "category": "education",
+  "userid": 1,
+  "sum": 500,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+#### All Income Categories Examples
+
+**Salary**:
+```json
+{
+  "type": "income",
+  "description": "Monthly salary",
+  "category": "salary",
+  "userid": 1,
+  "sum": 10000,
+  "currency": "ILS"
+}
+```
+
+**Freelance**:
+```json
+{
+  "type": "income",
+  "description": "Freelance project payment",
+  "category": "freelance",
+  "userid": 1,
+  "sum": 3000,
+  "currency": "ILS"
+}
+```
+
+**Investment**:
+```json
+{
+  "type": "income",
+  "description": "Stock dividends",
+  "category": "investment",
+  "userid": 1,
+  "sum": 500,
+  "currency": "ILS"
+}
+```
+
+**Business**:
+```json
+{
+  "type": "income",
+  "description": "Business revenue",
+  "category": "business",
+  "userid": 1,
+  "sum": 5000,
+  "currency": "ILS"
+}
+```
+
+**Gift**:
+```json
+{
+  "type": "income",
+  "description": "Birthday gift",
+  "category": "gift",
+  "userid": 1,
+  "sum": 200,
+  "currency": "ILS"
+}
+```
+
+**Other**:
+```json
+{
+  "type": "income",
+  "description": "Cashback refund",
+  "category": "other",
+  "userid": 1,
+  "sum": 100,
+  "currency": "ILS"
+}
+```
+
+**Complete Field Reference**:
 - `type` (required): Either "income" or "expense"
 - `description` (required): Cost description
 - `category` (required): 
@@ -263,33 +496,13 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 - `userid` (required if no token): User ID (1-20)
 - `sum` (required): Cost amount (must be positive)
 - `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
-- `payment_method` (optional): One of: credit_card, cash, bit, check
-
-### POST Requests (Use Postman/cURL)
-
-#### Create Cost
-**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/costs`
-
-**Body**:
-```json
-{
-  "description": "Grocery shopping",
-  "category": "food",
-  "userid": 1,
-  "sum": 450,
-  "currency": "ILS",
-  "payment_method": "credit_card"
-}
-```
-
-**Note**:
-- `description` (required): Cost description
-- `category` (required): One of: food, health, housing, sports, education
-- `userid` (required): User ID (1-20)
-- `sum` (required): Cost amount (must be positive)
-- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
-- `payment_method` (optional): One of: credit_card, cash, bit, check
-- `created_at` (optional): Date (cannot be in the past)
+- `payment_method` (optional, only for expenses): One of: credit_card, cash, bit, check
+- `tags` (optional): Array of strings for categorization (e.g., ["urgent", "important"])
+- `recurring` (optional): Object with:
+  - `enabled` (boolean): Whether this is a recurring cost
+  - `frequency` (required if enabled): One of: daily, weekly, monthly, yearly
+  - `next_date` (required if enabled): Next occurrence date (ISO format)
+- `created_at` (optional): Date in ISO format (cannot be in the past, default: current date)
 
 ## Analytics Service
 
@@ -335,8 +548,7 @@ The database contains:
 - **20 users** (IDs 1-20)
 - **78 goals** (distributed across all users)
 - **124 budgets** (for users 1-20, across 12 months and 2 years)
-- **10,000 costs** (income and expenses for all users)
-- **500 costs** (cost entries)
+- **10,000+ costs** (income and expenses for all users)
 
 ## Notes
 

@@ -78,8 +78,74 @@ async function createCost(req, res) {
   }
 }
 
+/**
+ * Get costs with filters
+ */
+async function getCosts(req, res) {
+  try {
+    const { userid, type, category, startDate, endDate, tags, recurring, limit, skip } = req.query;
+    
+    // If user is authenticated, use their userid from token
+    const userIdToUse = req.user?.id || userid;
+    
+    if (!userIdToUse) {
+      return res.status(400).json({
+        id: 'VALIDATION_ERROR',
+        message: 'userid is required (or use authentication token)'
+      });
+    }
+    
+    const costs = await costService.getCosts({
+      userid: userIdToUse,
+      type,
+      category,
+      startDate,
+      endDate,
+      tags: tags ? tags.split(',') : undefined,
+      recurring,
+      limit,
+      skip
+    });
+    
+    res.status(200).json(costs);
+  } catch (error) {
+    logger.error('Error fetching costs:', error.message);
+    res.status(500).json({
+      id: 'SERVER_ERROR',
+      message: error.message
+    });
+  }
+}
+
+/**
+ * Get cost by ID
+ */
+async function getCostById(req, res) {
+  try {
+    const { id } = req.params;
+    const cost = await costService.getCostById(id);
+    res.status(200).json(cost);
+  } catch (error) {
+    logger.error('Error fetching cost:', error.message);
+    
+    if (error.message === 'Cost not found') {
+      return res.status(404).json({
+        id: 'NOT_FOUND',
+        message: error.message
+      });
+    }
+    
+    res.status(500).json({
+      id: 'SERVER_ERROR',
+      message: error.message
+    });
+  }
+}
+
 module.exports = {
-  createCost
+  createCost,
+  getCosts,
+  getCostById
 };
 
 

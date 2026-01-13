@@ -17,7 +17,7 @@ A comprehensive Node.js/Express/MongoDB RESTful API system for managing personal
 
 ## Overview
 
-Cost Manager is a RESTful web service application designed to help users track and manage their financial activities. The system provides comprehensive features for expense tracking, budget management, goal setting, transaction history, analytics, and automated reporting.
+Cost Manager is a RESTful web service application designed to help users track and manage their financial activities. The system provides comprehensive features for expense tracking, budget management, goal setting, cost management (income and expenses), analytics, and automated reporting.
 
 The project offers two deployment models:
 - **All-in-One**: Monolithic architecture with all services integrated into a single application
@@ -26,7 +26,7 @@ The project offers two deployment models:
 ## Features
 
 - **User Management**: User registration, authentication (JWT), and profile management
-- **Transaction Management**: Track income and expenses with detailed categorization
+- **Cost Management**: Track income and expenses with detailed categorization
 - **Budget Tracking**: Create and monitor budgets by category and time period
 - **Goals Management**: Set and track financial goals with progress monitoring
 - **Analytics**: Comprehensive analytics including trends, category breakdowns, and comparisons
@@ -44,7 +44,7 @@ The `all-in-one/` directory contains a monolithic implementation where all servi
 
 **Services included:**
 - Users Service
-- Transactions Service
+- Costs Service
 - Budgets Service
 - Goals Service
 - Analytics Service
@@ -58,13 +58,12 @@ All services are accessible through a single port (default: 3000).
 The repository also includes individual service directories that can be deployed independently:
 
 - `service-users/` - User management and authentication
-- `service-transactions/` - Transaction processing
+- `service-costs/` - Cost management (income and expenses)
 - `service-budgets/` - Budget management
 - `service-goals/` - Goals tracking
 - `service-analytics/` - Analytics and insights
 - `service-report/` - Report generation
 - `service-admin/` - Administrative functions
-- `service-costs/` - Legacy cost management
 
 Each microservice can be:
 - Deployed independently
@@ -101,13 +100,12 @@ Cost-Manager-RESTful-Web-Services/
 │   └── package.json
 │
 ├── service-users/           # Users microservice
-├── service-transactions/    # Transactions microservice
+├── service-costs/           # Costs microservice
 ├── service-budgets/         # Budgets microservice
 ├── service-goals/           # Goals microservice
 ├── service-analytics/       # Analytics microservice
 ├── service-report/          # Reports microservice
-├── service-admin/           # Admin microservice
-└── service-costs/           # Legacy costs microservice
+└── service-admin/           # Admin microservice
 ```
 
 Each service directory follows a similar structure:
@@ -161,7 +159,7 @@ npm run dev
 
 1. Navigate to the desired service directory:
 ```bash
-cd service-users  # or service-transactions, service-budgets, etc.
+cd service-users  # or service-costs, service-budgets, etc.
 ```
 
 2. Install dependencies:
@@ -218,9 +216,9 @@ npm run dev
 - `GET /api/users/:id` - Get user by ID
 - `GET /api/users/me` - Get current authenticated user (requires JWT)
 
-#### Transactions Service
-- `POST /api/add` - Create a new transaction (income or expense)
-- `GET /api/transactions` - Get transactions (with filters)
+#### Costs Service
+- `POST /api/add` - Create a new cost (income or expense)
+- `POST /api/costs` - Create a new cost (alternative endpoint)
 
 #### Budgets Service
 - `POST /api/budgets` - Create a budget
