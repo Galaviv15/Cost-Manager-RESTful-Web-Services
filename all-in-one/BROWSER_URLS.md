@@ -281,11 +281,17 @@ This will show all available services: users, goals, budgets, transactions, anal
 ## Report Service
 
 ### GET Requests (Open in Browser)
-- **Get report for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?userid=1`
-- **Get report for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?userid=2`
-- **Get report for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?userid=15`
-- **Get monthly report for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?userid=1&month=1&year=2025`
-- **Get report (singular)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/report?userid=1`
+- **Get report for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&year=2025&month=1`
+- **Get report for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=2&year=2025&month=1`
+- **Get report for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=15&year=2025&month=1`
+- **Get monthly report for user 1 (January 2025)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&month=1&year=2025`
+- **Get monthly report for user 1 (December 2024)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&month=12&year=2024`
+- **Get report (singular)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/report?id=1&year=2025&month=1`
+
+**Note**:
+- `id` (required): User ID (1-15)
+- `year` (required): Year (e.g., 2024, 2025)
+- `month` (required): Month (1-12)
 
 ## Admin Service
 
