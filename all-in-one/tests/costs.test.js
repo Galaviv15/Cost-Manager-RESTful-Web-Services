@@ -2,8 +2,8 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Transaction = require('../src/models/Transaction');
-const app = require('../app_transactions');
+const Cost = require('../src/models/Cost');
+const app = require('../app_costs');
 
 // Test database connection
 beforeAll(async () => {
@@ -18,7 +18,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }

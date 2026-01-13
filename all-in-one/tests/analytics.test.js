@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Transaction = require('../src/models/Transaction');
+const Cost = require('../src/models/Cost');
 const app = require('../app_analytics');
 
 // Test database connection
@@ -18,7 +18,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -43,7 +43,7 @@ describe('Analytics Endpoints', () => {
   describe('GET /api/analytics/summary', () => {
     test('should return financial summary', async () => {
       // Create transactions
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -51,7 +51,7 @@ describe('Analytics Endpoints', () => {
         sum: 5000
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -66,7 +66,7 @@ describe('Analytics Endpoints', () => {
       expect(response.body).toHaveProperty('total_income', 5000);
       expect(response.body).toHaveProperty('total_expenses', 100);
       expect(response.body).toHaveProperty('balance', 4900);
-      expect(response.body).toHaveProperty('transaction_count', 2);
+      expect(response.body).toHaveProperty('cost_count', 2);
     });
 
     test('should return error when userid is missing', async () => {
@@ -91,7 +91,7 @@ describe('Analytics Endpoints', () => {
       const year = 2025;
       
       // Create transactions for different months
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -100,7 +100,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, 0, 15) // January
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -109,7 +109,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, 0, 20) // January
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Freelance',
         category: 'freelance',
@@ -144,7 +144,7 @@ describe('Analytics Endpoints', () => {
 
   describe('GET /api/analytics/categories', () => {
     test('should return category breakdown', async () => {
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -152,7 +152,7 @@ describe('Analytics Endpoints', () => {
         sum: 100
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Dinner',
         category: 'food',
@@ -160,7 +160,7 @@ describe('Analytics Endpoints', () => {
         sum: 200
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Gym',
         category: 'sports',
@@ -186,7 +186,7 @@ describe('Analytics Endpoints', () => {
       const year = 2025;
       const month = 1;
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -209,7 +209,7 @@ describe('Analytics Endpoints', () => {
       const month = 2; // February
 
       // Current month transactions
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -218,7 +218,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, month - 1, 15)
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -228,7 +228,7 @@ describe('Analytics Endpoints', () => {
       });
 
       // Previous month transactions
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -262,7 +262,7 @@ describe('Analytics Endpoints', () => {
       const year = 2025;
 
       // Create transactions for different months
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -271,7 +271,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, 0, 15) // January
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -280,7 +280,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, 0, 20) // January
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Freelance',
         category: 'freelance',

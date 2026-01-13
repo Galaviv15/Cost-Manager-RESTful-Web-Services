@@ -1,5 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Cost = require('../src/models/Cost');
@@ -41,7 +43,7 @@ describe('Cost Endpoints', () => {
   });
 
   describe('POST /api/add', () => {
-    test('should create a new cost with valid data', async () => {
+    test('should create a new expense cost with valid data', async () => {
       const costData = {
         type: 'expense',
         description: 'Lunch at restaurant',
@@ -55,10 +57,30 @@ describe('Cost Endpoints', () => {
         .send(costData)
         .expect(201);
 
+      expect(response.body).toHaveProperty('type', 'expense');
       expect(response.body).toHaveProperty('description', 'Lunch at restaurant');
       expect(response.body).toHaveProperty('category', 'food');
       expect(response.body).toHaveProperty('userid', 1);
       expect(response.body).toHaveProperty('sum', 85.50);
+    });
+
+    test('should create a new income cost with valid data', async () => {
+      const costData = {
+        type: 'income',
+        description: 'Salary',
+        category: 'salary',
+        userid: 1,
+        sum: 5000
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('type', 'income');
+      expect(response.body).toHaveProperty('category', 'salary');
+      expect(response.body).toHaveProperty('sum', 5000);
     });
 
     test('should return error when required fields are missing', async () => {
@@ -71,11 +93,45 @@ describe('Cost Endpoints', () => {
       expect(response.body).toHaveProperty('message');
     });
 
-    test('should return error when category is invalid', async () => {
+    test('should return error when type is invalid', async () => {
+      const costData = {
+        type: 'invalid',
+        description: 'Test',
+        category: 'food',
+        userid: 1,
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when category is invalid for expense', async () => {
       const costData = {
         type: 'expense',
         description: 'Test',
-        category: 'invalid_category',
+        category: 'salary',
+        userid: 1,
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when category is invalid for income', async () => {
+      const costData = {
+        type: 'income',
+        description: 'Test',
+        category: 'food',
         userid: 1,
         sum: 100
       };
@@ -203,7 +259,7 @@ describe('Cost Endpoints', () => {
       expect(Math.abs(createdDate - now)).toBeLessThan(5000);
     });
 
-    test('should accept all valid categories', async () => {
+    test('should accept all valid expense categories', async () => {
       const categories = ['food', 'health', 'housing', 'sports', 'education'];
 
       for (const category of categories) {
@@ -222,6 +278,205 @@ describe('Cost Endpoints', () => {
 
         expect(response.body).toHaveProperty('category', category);
       }
+    });
+
+    test('should accept all valid income categories', async () => {
+      const categories = ['salary', 'freelance', 'investment', 'business', 'gift', 'other'];
+
+      for (const category of categories) {
+        const costData = {
+          type: 'income',
+          description: `Test ${category}`,
+          category: category,
+          userid: 1,
+          sum: 100
+        };
+
+        const response = await request(app)
+          .post('/api/add')
+          .send(costData)
+          .expect(201);
+
+        expect(response.body).toHaveProperty('category', category);
+      }
+    });
+
+    test('should accept tags', async () => {
+      const costData = {
+        type: 'expense',
+        description: 'Test',
+        category: 'food',
+        userid: 1,
+        sum: 100,
+        tags: ['work', 'lunch', 'important']
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('tags');
+      expect(Array.isArray(response.body.tags)).toBe(true);
+      expect(response.body.tags).toEqual(['work', 'lunch', 'important']);
+    });
+
+    test('should accept recurring cost', async () => {
+      const futureDate = new Date();
+      futureDate.setMonth(futureDate.getMonth() + 1);
+
+      const costData = {
+        type: 'income',
+        description: 'Monthly Salary',
+        category: 'salary',
+        userid: 1,
+        sum: 5000,
+        recurring: {
+          enabled: true,
+          frequency: 'monthly',
+          next_date: futureDate.toISOString()
+        }
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('recurring');
+      expect(response.body.recurring.enabled).toBe(true);
+      expect(response.body.recurring.frequency).toBe('monthly');
+    });
+
+    test('should return error when recurring is enabled but frequency is missing', async () => {
+      const costData = {
+        type: 'income',
+        description: 'Test',
+        category: 'salary',
+        userid: 1,
+        sum: 100,
+        recurring: {
+          enabled: true
+        }
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when payment_method is used for income', async () => {
+      const costData = {
+        type: 'income',
+        description: 'Test',
+        category: 'salary',
+        userid: 1,
+        sum: 100,
+        payment_method: 'cash'
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should use userid from body when not authenticated (backward compatibility)', async () => {
+      const costData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 1,
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .send(costData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('userid', 1);
+    });
+
+    test('should create cost with userid from token when authenticated', async () => {
+      // Create a user with email and password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: new Date('1992-05-15'),
+        email: 'jane@example.com',
+        password: hashedPassword
+      });
+
+      // Generate JWT token (same format as service-users)
+      const token = jwt.sign(
+        { userId: 2, email: 'jane@example.com' },
+        process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      const costData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        sum: 100
+        // userid not provided - should be taken from token
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(costData)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('userid', 2);
+      expect(response.body).toHaveProperty('type', 'expense');
+      expect(response.body).toHaveProperty('description', 'Lunch');
+    });
+
+    test('should prefer userid from token over body when authenticated', async () => {
+      // Create a user with email and password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({
+        id: 2,
+        first_name: 'Jane',
+        last_name: 'Smith',
+        birthday: new Date('1992-05-15'),
+        email: 'jane@example.com',
+        password: hashedPassword
+      });
+
+      // Generate JWT token (same format as service-users)
+      const token = jwt.sign(
+        { userId: 2, email: 'jane@example.com' },
+        process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      const costData = {
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 999, // Different userid in body - should be ignored
+        sum: 100
+      };
+
+      const response = await request(app)
+        .post('/api/add')
+        .set('Authorization', `Bearer ${token}`)
+        .send(costData)
+        .expect(201);
+
+      // Should use userid from token (2), not from body (999)
+      expect(response.body).toHaveProperty('userid', 2);
+      expect(response.body.userid).not.toBe(999);
     });
   });
 });

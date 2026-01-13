@@ -10,7 +10,7 @@ For local testing, use: `http://localhost:3000` (or the port your service is run
 
 - **Main Service**: `https://cost-manager-restful-web-services-u68h.onrender.com/`
 
-This will show all available services: users, goals, budgets, transactions, costs, analytics, reports, admin
+This will show all available services: users, goals, budgets, costs, analytics, reports, admin
 
 ## Users Service
 
@@ -203,11 +203,11 @@ This will show all available services: users, goals, budgets, transactions, cost
 
 **Body**: None required
 
-## Transactions Service
+## Costs Service
 
 ### POST Requests (Use Postman/cURL)
 
-#### Create Transaction (Expense)
+#### Create Cost (Expense)
 **URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
 
 **Body**:
@@ -223,7 +223,7 @@ This will show all available services: users, goals, budgets, transactions, cost
 }
 ```
 
-#### Create Transaction (Income)
+#### Create Cost (Income)
 **URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
 
 **Body**:
@@ -238,7 +238,7 @@ This will show all available services: users, goals, budgets, transactions, cost
 }
 ```
 
-#### Create Transaction (with Authentication Token)
+#### Create Cost (with Authentication Token)
 **URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
 **Headers**: `Authorization: Bearer YOUR_TOKEN_HERE`
 
@@ -256,18 +256,14 @@ This will show all available services: users, goals, budgets, transactions, cost
 
 **Note**:
 - `type` (required): Either "income" or "expense"
-- `description` (required): Transaction description
+- `description` (required): Cost description
 - `category` (required): 
   - For expenses: food, health, housing, sports, education
   - For income: salary, freelance, investment, business, gift, other
 - `userid` (required if no token): User ID (1-20)
-- `sum` (required): Transaction amount (must be positive)
+- `sum` (required): Cost amount (must be positive)
 - `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
 - `payment_method` (optional): One of: credit_card, cash, bit, check
-
-## Costs Service
-
-**Note**: While most users use the Transactions service for managing expenses and income, the Costs service is maintained as part of the original project requirements.
 
 ### POST Requests (Use Postman/cURL)
 
@@ -339,7 +335,7 @@ The database contains:
 - **20 users** (IDs 1-20)
 - **78 goals** (distributed across all users)
 - **124 budgets** (for users 1-20, across 12 months and 2 years)
-- **10,000 transactions** (income and expenses for all users)
+- **10,000 costs** (income and expenses for all users)
 - **500 costs** (cost entries)
 
 ## Notes

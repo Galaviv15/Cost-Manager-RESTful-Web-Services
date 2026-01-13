@@ -1,4 +1,4 @@
-const Transaction = require('../models/Transaction');
+const Cost = require('../models/Cost');
 const User = require('../models/User');
 const { logger } = require('../config/logger');
 
@@ -6,10 +6,10 @@ const EXPENSE_CATEGORIES = ['food', 'health', 'housing', 'sports', 'education'];
 const INCOME_CATEGORIES = ['salary', 'freelance', 'investment', 'business', 'gift', 'other'];
 
 /**
- * Create a new transaction
+ * Create a new cost
  */
-async function createTransaction(transactionData, userIdFromToken = null) {
-  let { type, description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = transactionData;
+async function createCost(costData, userIdFromToken = null) {
+  let { type, description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = costData;
   
   // If user is authenticated, use their userid from token
   if (userIdFromToken) {
@@ -26,16 +26,16 @@ async function createTransaction(transactionData, userIdFromToken = null) {
   }
 
   // Validate date if provided
-  let transactionDate = new Date();
+  let costDate = new Date();
   if (created_at) {
-    transactionDate = new Date(created_at);
-    if (isNaN(transactionDate.getTime())) {
+    costDate = new Date(created_at);
+    if (isNaN(costDate.getTime())) {
       throw new Error('created_at must be a valid date');
     }
     // Check if date is in the past
     const now = new Date();
-    if (transactionDate < now) {
-      throw new Error('Cannot add transactions with dates in the past');
+    if (costDate < now) {
+      throw new Error('Cannot add costs with dates in the past');
     }
   }
 
@@ -71,29 +71,31 @@ async function createTransaction(transactionData, userIdFromToken = null) {
                    .map(tag => tag.trim());
   }
 
-  // Create new transaction
-  const transaction = new Transaction({
+  // Create new cost
+  const cost = new Cost({
     type: normalizedType,
     description: description.trim(),
     category: normalizedCategory,
     userid,
     sum,
-    created_at: transactionDate,
+    created_at: costDate,
     currency: currency || 'ILS',
     payment_method: normalizedType === 'expense' ? payment_method : undefined,
     tags: tagsArray,
     recurring: recurringData
   });
 
-  await transaction.save();
-  logger.info(`Transaction created: ${transaction._id} (${normalizedType}) for user: ${userid}`);
+  await cost.save();
+  logger.info(`Cost created: ${cost._id} (${normalizedType}) for user: ${userid}`);
 
-  return transaction;
+  return cost;
 }
 
 module.exports = {
-  createTransaction,
+  createCost,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES
 };
+
+
 

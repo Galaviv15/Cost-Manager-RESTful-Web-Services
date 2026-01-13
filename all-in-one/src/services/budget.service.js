@@ -1,5 +1,5 @@
 const Budget = require('../models/Budget');
-const Transaction = require('../models/Transaction');
+const Cost = require('../models/Cost');
 const User = require('../models/User');
 const { logger } = require('../config/logger');
 
@@ -114,7 +114,7 @@ async function getBudgetStatus(userid, year, month) {
   const startDate = new Date(yearNum, monthNum - 1, 1);
   const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59);
   
-  const expenses = await Transaction.find({
+  const expenses = await Cost.find({
     userid: userIdNum,
     type: 'expense',
     created_at: { $gte: startDate, $lte: endDate }

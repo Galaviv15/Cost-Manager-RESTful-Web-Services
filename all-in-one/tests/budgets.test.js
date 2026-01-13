@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Budget = require('../src/models/Budget');
-const Transaction = require('../src/models/Transaction');
+const Cost = require('../src/models/Cost');
 const app = require('../app_budgets');
 
 // Test database connection
@@ -20,7 +20,7 @@ afterEach(async () => {
   try {
     await User.deleteMany({});
     await Budget.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -337,7 +337,7 @@ describe('Budget Endpoints', () => {
       });
 
       // Create expenses
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',

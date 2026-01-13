@@ -304,15 +304,15 @@ app.get('/api/users/me', authenticate, async (req, res) => {
       });
     }
 
-    // Get total transactions for this user
-    const Transaction = require('../models/Transaction');
-    const transactions = await Transaction.find({ userid: req.user.id });
+    // Get total costs for this user
+    const Cost = require('../models/Cost');
+    const costs = await Cost.find({ userid: req.user.id });
     
-    const totalExpenses = transactions
+    const totalExpenses = costs
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.sum, 0);
     
-    const totalIncome = transactions
+    const totalIncome = costs
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.sum, 0);
     
@@ -340,7 +340,7 @@ app.get('/api/users/me', authenticate, async (req, res) => {
 
 /**
  * GET /api/users/:id
- * Get user by custom ID with total of all their transactions
+ * Get user by custom ID with total of all their costs
  * Public endpoint (no authentication required for backward compatibility)
  */
 app.get('/api/users/:id', async (req, res) => {
@@ -365,15 +365,15 @@ app.get('/api/users/:id', async (req, res) => {
       });
     }
 
-    // Get total transactions for this user
-    const Transaction = require('../models/Transaction');
-    const transactions = await Transaction.find({ userid: userId });
+    // Get total costs for this user
+    const Cost = require('../models/Cost');
+    const costs = await Cost.find({ userid: userId });
     
-    const totalExpenses = transactions
+    const totalExpenses = costs
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.sum, 0);
     
-    const totalIncome = transactions
+    const totalIncome = costs
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.sum, 0);
     

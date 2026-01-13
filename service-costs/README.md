@@ -1,15 +1,13 @@
 # Costs Service
 
-Costs service for the Cost Manager application.
-
-**Note**: While most users use the Transactions service for managing expenses and income, the Costs service is maintained as part of the original project requirements.
+Cost management service for the Cost Manager application.
 
 ## Port
 3001
 
 ## Endpoints
 
-- `POST /api/add` - Create a new cost entry
+- `POST /api/add` - Create a new cost (income or expense)
 
 ## Environment Variables
 
@@ -17,6 +15,7 @@ Costs service for the Cost Manager application.
 - `PORT_COSTS` - Port number (default: 3001)
 - `NODE_ENV` - Environment (development/production)
 - `LOG_LEVEL` - Logging level
+- `JWT_SECRET` - JWT secret key (for optional authentication)
 
 ## Installation
 
@@ -35,31 +34,4 @@ For development with auto-reload:
 ```bash
 npm run dev
 ```
-
-## API Endpoints
-
-### POST /api/add
-Create a new cost entry.
-
-**Request Body:**
-```json
-{
-  "description": "Grocery shopping",
-  "category": "food",
-  "userid": 1,
-  "sum": 450,
-  "currency": "ILS",
-  "payment_method": "credit_card",
-  "created_at": "2025-01-15T12:00:00.000Z"
-}
-```
-
-**Parameters:**
-- `description` (required): Cost description
-- `category` (required): One of: food, health, housing, sports, education
-- `userid` (required): User ID (1-20)
-- `sum` (required): Cost amount (must be positive)
-- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
-- `payment_method` (optional): One of: credit_card, cash, bit, check
-- `created_at` (optional): Date (cannot be in the past)
 

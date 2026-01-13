@@ -2,9 +2,17 @@ const mongoose = require('mongoose');
 
 /**
  * Cost Schema
- * Represents an expense/cost entry
+ * Represents a unified income/expense cost entry
+ * Supports both income and expenses with type field
  */
 const costSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    required: true,
+    enum: ['income', 'expense'],
+    lowercase: true,
+    description: 'Type of cost: income or expense'
+  },
   description: {
     type: String,
     required: true,
@@ -13,7 +21,12 @@ const costSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['food', 'health', 'housing', 'sports', 'education'],
+    enum: [
+      // Expense categories
+      'food', 'health', 'housing', 'sports', 'education',
+      // Income categories
+      'salary', 'freelance', 'investment', 'business', 'gift', 'other'
+    ],
     lowercase: true
   },
   userid: {
@@ -39,7 +52,32 @@ const costSchema = new mongoose.Schema({
     type: String,
     enum: ['credit_card', 'cash', 'bit', 'check'],
     lowercase: true
+  },
+  tags: {
+    type: [String],
+    default: [],
+    description: 'Optional tags for categorization and filtering'
+  },
+  recurring: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    frequency: {
+      type: String,
+      enum: ['daily', 'weekly', 'monthly', 'yearly'],
+      lowercase: true
+    },
+    next_date: {
+      type: Date,
+      description: 'Next occurrence date for recurring costs'
+    }
   }
 }, { timestamps: true });
+
+// Index for efficient queries
+costSchema.index({ userid: 1, type: 1, created_at: -1 });
+costSchema.index({ userid: 1, category: 1 });
+costSchema.index({ userid: 1, 'recurring.enabled': 1 });
 
 module.exports = mongoose.model('Cost', costSchema);

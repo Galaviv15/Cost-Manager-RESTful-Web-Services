@@ -1,4 +1,4 @@
-const Transaction = require('../models/Transaction');
+const Cost = require('../models/Cost');
 const Report = require('../models/Report');
 const { logger } = require('../config/logger');
 
@@ -11,7 +11,7 @@ function isCurrentMonth(year, month) {
 }
 
 /**
- * Generate report from transactions
+ * Generate report from costs
  * This function implements the Computed Design Pattern by generating
  * reports that can be cached for past months
  */
@@ -19,14 +19,14 @@ async function generateReport(userid, year, month) {
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0, 23, 59, 59);
 
-  const transactions = await Transaction.find({
+  const costs = await Cost.find({
     userid,
     created_at: { $gte: startDate, $lte: endDate }
   });
 
   // Separate income and expenses
-  const expenses = transactions.filter(t => t.type === 'expense');
-  const incomes = transactions.filter(t => t.type === 'income');
+  const expenses = costs.filter(t => t.type === 'expense');
+  const incomes = costs.filter(t => t.type === 'income');
 
   // Expense categories
   const expenseCategories = ['food', 'education', 'health', 'housing', 'sports'];

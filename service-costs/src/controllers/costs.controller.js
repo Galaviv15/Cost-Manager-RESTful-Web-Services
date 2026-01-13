@@ -1,39 +1,58 @@
 const costService = require('../services/cost.service');
+const { validateCostType, validateCategory, validateDate, validatePositiveNumber } = require('../utils/validators');
 const { logger } = require('../config/logger');
 
 /**
- * Create a new cost entry
+ * Create a new cost
  */
 async function createCost(req, res) {
   try {
-    const { description, category, userid, sum } = req.body;
+    const { type, description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = req.body;
 
     // Validate required fields
-    if (!description || !category || !userid || sum === undefined) {
+    if (!type || !description || !category || (userid === undefined && !req.user) || sum === undefined) {
       return res.status(400).json({ 
         id: 'VALIDATION_ERROR',
-        message: 'Missing required fields: description, category, userid, and sum are required' 
+        message: 'Missing required fields: type, description, category, userid, and sum are required' 
+      });
+    }
+
+    // Validate type
+    if (!validateCostType(type)) {
+      return res.status(400).json({ 
+        id: 'VALIDATION_ERROR',
+        message: 'Invalid type. Must be either "income" or "expense"' 
       });
     }
 
     // Validate category
-    const validCategories = ['food', 'health', 'housing', 'sports', 'education'];
-    if (!validCategories.includes(category.toLowerCase())) {
+    if (!validateCategory(category, type, costService.EXPENSE_CATEGORIES, costService.INCOME_CATEGORIES)) {
+      const validCategories = type.toLowerCase() === 'income' 
+        ? costService.INCOME_CATEGORIES 
+        : costService.EXPENSE_CATEGORIES;
       return res.status(400).json({ 
         id: 'VALIDATION_ERROR',
-        message: `Invalid category. Must be one of: ${validCategories.join(', ')}` 
+        message: `Invalid category for ${type}. Must be one of: ${validCategories.join(', ')}` 
       });
     }
 
-    // Validate sum is a number
-    if (typeof sum !== 'number' || isNaN(sum) || sum < 0) {
+    // Validate sum
+    if (!validatePositiveNumber(sum)) {
       return res.status(400).json({ 
         id: 'VALIDATION_ERROR',
         message: 'sum must be a positive number' 
       });
     }
 
-    const cost = await costService.createCost(req.body);
+    // Validate payment_method only for expenses
+    if (type.toLowerCase() === 'income' && payment_method) {
+      return res.status(400).json({ 
+        id: 'VALIDATION_ERROR',
+        message: 'payment_method is only allowed for expense costs' 
+      });
+    }
+
+    const cost = await costService.createCost(req.body, req.user?.id);
     res.status(201).json(cost);
   } catch (error) {
     logger.error('Error creating cost:', error.message);
@@ -44,9 +63,16 @@ async function createCost(req, res) {
         message: error.message 
       });
     }
+    
+    if (error.code === 11000) {
+      return res.status(409).json({ 
+        id: 'DUPLICATE_ERROR',
+        message: 'Cost already exists' 
+      });
+    }
 
-    res.status(500).json({ 
-      id: 'SERVER_ERROR',
+    res.status(400).json({ 
+      id: 'VALIDATION_ERROR',
       message: error.message 
     });
   }

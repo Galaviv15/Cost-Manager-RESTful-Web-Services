@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Transaction = require('../src/models/Transaction');
+const Cost = require('../src/models/Cost');
 const Report = require('../src/models/Report');
 const app = require('../app_report');
 
@@ -19,7 +19,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
     await Report.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
@@ -49,7 +49,7 @@ describe('Report Endpoints', () => {
       const month = now.getMonth() + 1;
 
       // Create test transactions
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -58,7 +58,7 @@ describe('Report Endpoints', () => {
         created_at: new Date(year, month - 1, 15)
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Book',
         category: 'education',
@@ -140,7 +140,7 @@ describe('Report Endpoints', () => {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -179,7 +179,7 @@ describe('Report Endpoints', () => {
       const pastMonth = pastMonthIndex + 1;
 
       // Create transaction in past month (Date constructor uses 0-11 for months)
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Past expense',
         category: 'food',

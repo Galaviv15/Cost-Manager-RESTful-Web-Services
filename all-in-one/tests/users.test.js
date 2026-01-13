@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Transaction = require('../src/models/Transaction');
+const Cost = require('../src/models/Cost');
 const app = require('../app_users');
 
 // Test database connection
@@ -20,7 +20,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -171,7 +171,7 @@ describe('User Endpoints', () => {
       });
 
       // Create transactions for user
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -179,7 +179,7 @@ describe('User Endpoints', () => {
         sum: 50
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Book',
         category: 'education',
@@ -493,7 +493,7 @@ describe('User Endpoints', () => {
       const token = registerResponse.body.token;
 
       // Create transactions
-      await Transaction.create({
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -501,7 +501,7 @@ describe('User Endpoints', () => {
         sum: 5000
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',

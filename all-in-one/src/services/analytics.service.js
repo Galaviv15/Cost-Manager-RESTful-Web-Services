@@ -1,4 +1,4 @@
-const Transaction = require('../models/Transaction');
+const Cost = require('../models/Cost');
 const User = require('../models/User');
 const { logger } = require('../config/logger');
 
@@ -11,32 +11,32 @@ async function getSummary(userid) {
     throw new Error('User not found');
   }
 
-  const transactions = await Transaction.find({ userid: parseInt(userid) });
+  const costs = await Cost.find({ userid: parseInt(userid) });
 
-  const totalIncome = transactions
+  const totalIncome = costs
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.sum, 0);
 
-  const totalExpenses = transactions
+  const totalExpenses = costs
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.sum, 0);
 
   const balance = totalIncome - totalExpenses;
 
-  const transactionCount = transactions.length;
-  const incomeCount = transactions.filter(t => t.type === 'income').length;
-  const expenseCount = transactions.filter(t => t.type === 'expense').length;
+  const costCount = costs.length;
+  const incomeCount = costs.filter(t => t.type === 'income').length;
+  const expenseCount = costs.filter(t => t.type === 'expense').length;
 
   return {
     userid: parseInt(userid),
     total_income: totalIncome,
     total_expenses: totalExpenses,
     balance: balance,
-    transaction_count: transactionCount,
+    cost_count: costCount,
     income_count: incomeCount,
     expense_count: expenseCount,
-    average_income_per_transaction: incomeCount > 0 ? (totalIncome / incomeCount).toFixed(2) : 0,
-    average_expense_per_transaction: expenseCount > 0 ? (totalExpenses / expenseCount).toFixed(2) : 0
+    average_income_per_cost: incomeCount > 0 ? (totalIncome / incomeCount).toFixed(2) : 0,
+    average_expense_per_cost: expenseCount > 0 ? (totalExpenses / expenseCount).toFixed(2) : 0
   };
 }
 
@@ -48,7 +48,7 @@ async function getTrends(userid, year) {
   const startDate = new Date(targetYear, 0, 1);
   const endDate = new Date(targetYear, 11, 31, 23, 59, 59);
 
-  const transactions = await Transaction.find({
+  const costs = await Cost.find({
     userid: parseInt(userid),
     created_at: { $gte: startDate, $lte: endDate }
   });
@@ -59,7 +59,7 @@ async function getTrends(userid, year) {
     monthlyData[month] = { income: 0, expenses: 0 };
   }
 
-  transactions.forEach(t => {
+  costs.forEach(t => {
     const month = new Date(t.created_at).getMonth() + 1;
     if (t.type === 'income') {
       monthlyData[month].income += t.sum;
@@ -100,13 +100,13 @@ async function getCategories(userid, type, year, month) {
     query.created_at = { $gte: startDate, $lte: endDate };
   }
 
-  const transactions = await Transaction.find(query);
+  const costs = await Cost.find(query);
 
   // Group by category
   const categoryData = {};
   let total = 0;
 
-  transactions.forEach(t => {
+  costs.forEach(t => {
     if (!categoryData[t.category]) {
       categoryData[t.category] = { sum: 0, count: 0 };
     }
@@ -147,24 +147,24 @@ async function getComparison(userid, year, month) {
   const prevStart = new Date(prevYear, prevMonth - 1, 1);
   const prevEnd = new Date(prevYear, prevMonth, 0, 23, 59, 59);
 
-  const currentTransactions = await Transaction.find({
+  const currentCosts = await Cost.find({
     userid: parseInt(userid),
     created_at: { $gte: currentStart, $lte: currentEnd }
   });
 
-  const prevTransactions = await Transaction.find({
+  const prevCosts = await Cost.find({
     userid: parseInt(userid),
     created_at: { $gte: prevStart, $lte: prevEnd }
   });
 
-  const calculateTotals = (transactions) => {
-    const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.sum, 0);
-    const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.sum, 0);
+  const calculateTotals = (costs) => {
+    const income = costs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.sum, 0);
+    const expenses = costs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.sum, 0);
     return { income, expenses, balance: income - expenses };
   };
 
-  const current = calculateTotals(currentTransactions);
-  const previous = calculateTotals(prevTransactions);
+  const current = calculateTotals(currentCosts);
+  const previous = calculateTotals(prevCosts);
 
   const incomeChange = previous.income > 0 
     ? ((current.income - previous.income) / previous.income * 100).toFixed(2)
@@ -206,38 +206,38 @@ async function getYearly(userid, year) {
   const startDate = new Date(yearNum, 0, 1);
   const endDate = new Date(yearNum, 11, 31, 23, 59, 59);
 
-  const transactions = await Transaction.find({
+  const costs = await Cost.find({
     userid: parseInt(userid),
     created_at: { $gte: startDate, $lte: endDate }
   });
 
-  const totalIncome = transactions
+  const totalIncome = costs
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.sum, 0);
 
-  const totalExpenses = transactions
+  const totalExpenses = costs
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.sum, 0);
 
   // Monthly breakdown
   const monthlyBreakdown = {};
   for (let month = 1; month <= 12; month++) {
-    monthlyBreakdown[month] = { income: 0, expenses: 0, transactions: 0 };
+    monthlyBreakdown[month] = { income: 0, expenses: 0, costs: 0 };
   }
 
-  transactions.forEach(t => {
+  costs.forEach(t => {
     const month = new Date(t.created_at).getMonth() + 1;
     if (t.type === 'income') {
       monthlyBreakdown[month].income += t.sum;
     } else {
       monthlyBreakdown[month].expenses += t.sum;
     }
-    monthlyBreakdown[month].transactions += 1;
+    monthlyBreakdown[month].costs += 1;
   });
 
   // Category breakdown
   const categoryBreakdown = {};
-  transactions.forEach(t => {
+  costs.forEach(t => {
     if (!categoryBreakdown[t.category]) {
       categoryBreakdown[t.category] = { income: 0, expenses: 0 };
     }
@@ -255,7 +255,7 @@ async function getYearly(userid, year) {
       total_income: totalIncome,
       total_expenses: totalExpenses,
       balance: totalIncome - totalExpenses,
-      transaction_count: transactions.length
+      cost_count: costs.length
     },
     monthly_breakdown: Object.keys(monthlyBreakdown).map(month => ({
       month: parseInt(month),
