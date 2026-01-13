@@ -21,7 +21,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/3`
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/4`
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/5`
-- **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/15` (all users 1-15)
+- **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/15` (all users 1-20)
 - **Get current user (authenticated)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/me` (requires authentication token)
 
 ### POST Requests (Use Postman/cURL)
@@ -74,6 +74,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get all goals for user 4**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=4`
 - **Get all goals for user 5**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=5`
 - **Get all goals for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=15`
+- **Get all goals for user 20**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=20`
 - **Get active goals for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=1&status=active`
 - **Get completed goals for user 4**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals?userid=4&status=completed`
 - **Get goal by ID** (use the _id from the goals list): `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/69655e6c65b983e0277d0f4a`
@@ -100,7 +101,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 ```
 
 **Note**: 
-- `userid` (required): User ID (1-15)
+- `userid` (required): User ID (1-20)
 - `title` (required): Goal title
 - `target_amount` (required): Target amount to save
 - `current_amount` (optional, default: 0): Current saved amount
@@ -139,6 +140,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get all budgets for user 4**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=4`
 - **Get all budgets for user 5**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=5`
 - **Get all budgets for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=15`
+- **Get all budgets for user 20**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=20`
 - **Get budget status for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=1&year=2025&month=1`
 - **Get budget status for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=2&year=2025&month=1`
 - **Get budget status for user 10**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=10&year=2025&month=1`
@@ -177,7 +179,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 ```
 
 **Note**:
-- `userid` (required): User ID (1-15)
+- `userid` (required): User ID (1-20)
 - `year` (required): Year (2000-2100)
 - `month` (required): Month (1-12)
 - `type` (required): Either "total" or "category"
@@ -270,6 +272,7 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get analytics for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics?userid=2`
 - **Get analytics for user 3**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics?userid=3`
 - **Get analytics for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics?userid=15`
+- **Get analytics for user 20**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics?userid=20`
 - **Get analytics summary**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/summary?userid=1`
 - **Get analytics trends**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/trends?userid=1`
 - **Get category breakdown**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/category?userid=1`
@@ -284,12 +287,13 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get report for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&year=2025&month=1`
 - **Get report for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=2&year=2025&month=1`
 - **Get report for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=15&year=2025&month=1`
+- **Get report for user 20**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=20&year=2025&month=1`
 - **Get monthly report for user 1 (January 2025)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&month=1&year=2025`
 - **Get monthly report for user 1 (December 2024)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/reports?id=1&month=12&year=2024`
 - **Get report (singular)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/report?id=1&year=2025&month=1`
 
 **Note**:
-- `id` (required): User ID (1-15)
+- `id` (required): User ID (1-20)
 - `year` (required): Year (e.g., 2024, 2025)
 - `month` (required): Month (1-12)
 
@@ -302,11 +306,11 @@ This will show all available services: users, goals, budgets, transactions, anal
 ## Database Summary
 
 The database contains:
-- **15 users** (IDs 1-15)
-- **35 goals** (distributed across all users)
-- **270 budgets** (for users 1-15, 3 months, all categories)
-- **375 transactions** (income and expenses for all users)
-- **100 costs** (legacy cost entries)
+- **20 users** (IDs 1-20)
+- **78 goals** (distributed across all users)
+- **124 budgets** (for users 1-20, across 12 months and 2 years)
+- **10,000 transactions** (income and expenses for all users)
+- **500 costs** (legacy cost entries)
 
 ## Notes
 
@@ -318,7 +322,7 @@ The database contains:
 
 2. **Local Testing**: If running locally, replace the base URL with `http://localhost:3000` (or your local port)
 
-3. **User IDs**: The seed data creates users with IDs 1-15, so use those IDs in your queries.
+3. **User IDs**: The seed data creates users with IDs 1-20, so use those IDs in your queries.
 
 4. **Query Parameters**: Some endpoints require query parameters (like `userid`). Make sure to include them in the URL.
 
