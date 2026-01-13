@@ -83,10 +83,11 @@ async function createCost(req, res) {
  */
 async function getCosts(req, res) {
   try {
-    const { userid, type, category, startDate, endDate, tags, recurring, limit, skip } = req.query;
+    // Support both userId and userid query parameters
+    const { userId, userid, type, category, startDate, endDate, tags, recurring, limit, skip } = req.query;
     
     // If user is authenticated, use their userid from token
-    const userIdToUse = req.user?.id || userid;
+    const userIdToUse = req.user?.id || userId || userid;
     
     if (!userIdToUse) {
       return res.status(400).json({
