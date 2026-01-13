@@ -12,7 +12,7 @@ Transaction management service for the Cost Manager application.
 ## Environment Variables
 
 - `MONGO_URI` - MongoDB connection string
-- `PORT_TRANSACTIONS` or `PORT_COSTS` - Port number (default: 3007)
+- `PORT_TRANSACTIONS` - Port number (default: 3007)
 - `NODE_ENV` - Environment (development/production)
 - `LOG_LEVEL` - Logging level
 - `JWT_SECRET` - JWT secret key (for optional authentication)

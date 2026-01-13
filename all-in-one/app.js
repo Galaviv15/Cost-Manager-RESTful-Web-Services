@@ -10,6 +10,7 @@ const usersRoutes = require('./src/routes/users.routes');
 const goalsRoutes = require('./src/routes/goals.routes');
 const budgetsRoutes = require('./src/routes/budgets.routes');
 const transactionsRoutes = require('./src/routes/transactions.routes');
+const costsRoutes = require('./src/routes/costs.routes');
 const analyticsRoutes = require('./src/routes/analytics.routes');
 const reportsRoutes = require('./src/routes/reports.routes');
 const adminRoutes = require('./src/routes/admin.routes');
@@ -30,7 +31,7 @@ app.get('/', (req, res) => {
   res.status(200).json({
     status: 'ok',
     service: 'cost-manager-all-in-one',
-    services: ['users', 'goals', 'budgets', 'transactions', 'analytics', 'reports', 'admin'],
+    services: ['users', 'goals', 'budgets', 'transactions', 'costs', 'analytics', 'reports', 'admin'],
     timestamp: new Date().toISOString()
   });
 });
@@ -40,6 +41,7 @@ app.use('/', usersRoutes);
 app.use('/', goalsRoutes);
 app.use('/', budgetsRoutes);
 app.use('/', transactionsRoutes);
+app.use('/', costsRoutes);
 app.use('/', analyticsRoutes);
 app.use('/', reportsRoutes);
 app.use('/', adminRoutes);

@@ -10,7 +10,7 @@ For local testing, use: `http://localhost:3000` (or the port your service is run
 
 - **Main Service**: `https://cost-manager-restful-web-services-u68h.onrender.com/`
 
-This will show all available services: users, goals, budgets, transactions, analytics, reports, admin
+This will show all available services: users, goals, budgets, transactions, costs, analytics, reports, admin
 
 ## Users Service
 
@@ -260,10 +260,40 @@ This will show all available services: users, goals, budgets, transactions, anal
 - `category` (required): 
   - For expenses: food, health, housing, sports, education
   - For income: salary, freelance, investment, business, gift, other
-- `userid` (required if no token): User ID (1-15)
+- `userid` (required if no token): User ID (1-20)
 - `sum` (required): Transaction amount (must be positive)
 - `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
 - `payment_method` (optional): One of: credit_card, cash, bit, check
+
+## Costs Service
+
+**Note**: While most users use the Transactions service for managing expenses and income, the Costs service is maintained as part of the original project requirements.
+
+### POST Requests (Use Postman/cURL)
+
+#### Create Cost
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/costs`
+
+**Body**:
+```json
+{
+  "description": "Grocery shopping",
+  "category": "food",
+  "userid": 1,
+  "sum": 450,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+**Note**:
+- `description` (required): Cost description
+- `category` (required): One of: food, health, housing, sports, education
+- `userid` (required): User ID (1-20)
+- `sum` (required): Cost amount (must be positive)
+- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
+- `payment_method` (optional): One of: credit_card, cash, bit, check
+- `created_at` (optional): Date (cannot be in the past)
 
 ## Analytics Service
 
@@ -310,7 +340,7 @@ The database contains:
 - **78 goals** (distributed across all users)
 - **124 budgets** (for users 1-20, across 12 months and 2 years)
 - **10,000 transactions** (income and expenses for all users)
-- **500 costs** (legacy cost entries)
+- **500 costs** (cost entries)
 
 ## Notes
 
