@@ -91,8 +91,120 @@ async function createCost(costData, userIdFromToken = null) {
   return cost;
 }
 
+/**
+ * Get costs with filters
+ */
+async function getCosts(filters = {}) {
+  const {
+    userid,
+    type,
+    category,
+    startDate,
+    endDate,
+    tags,
+    recurring,
+    limit,
+    skip
+  } = filters;
+
+  // Build query
+  const query = {};
+
+  // Required: userid
+  if (userid) {
+    query.userid = parseInt(userid);
+  } else {
+    throw new Error('userid is required');
+  }
+
+  // Optional: type filter
+  if (type) {
+    const normalizedType = type.toLowerCase();
+    if (!['income', 'expense'].includes(normalizedType)) {
+      throw new Error('type must be either "income" or "expense"');
+    }
+    query.type = normalizedType;
+  }
+
+  // Optional: category filter
+  if (category) {
+    query.category = category.toLowerCase();
+  }
+
+  // Optional: date range filter
+  if (startDate || endDate) {
+    query.created_at = {};
+    if (startDate) {
+      query.created_at.$gte = new Date(startDate);
+    }
+    if (endDate) {
+      query.created_at.$lte = new Date(endDate);
+    }
+  }
+
+  // Optional: tags filter (can be comma-separated string or array)
+  if (tags) {
+    let tagsArray = [];
+    if (typeof tags === 'string') {
+      tagsArray = tags.split(',').map(tag => tag.trim().toLowerCase());
+    } else if (Array.isArray(tags)) {
+      tagsArray = tags.map(tag => tag.trim().toLowerCase());
+    }
+    if (tagsArray.length > 0) {
+      query.tags = { $in: tagsArray };
+    }
+  }
+
+  // Optional: recurring filter
+  if (recurring !== undefined) {
+    if (recurring === 'true' || recurring === true) {
+      query['recurring.enabled'] = true;
+    } else if (recurring === 'false' || recurring === false) {
+      query['recurring.enabled'] = false;
+    }
+  }
+
+  // Build query options
+  const options = {
+    sort: { created_at: -1 } // Most recent first
+  };
+
+  if (limit) {
+    options.limit = parseInt(limit);
+  } else {
+    options.limit = 100; // Default limit
+  }
+  if (skip) {
+    options.skip = parseInt(skip);
+  }
+
+  const costs = await Cost.find(query, null, options);
+  logger.info(`Retrieved ${costs.length} costs for user: ${userid}`);
+
+  return costs;
+}
+
+/**
+ * Get cost by ID
+ */
+async function getCostById(id) {
+  if (!id) {
+    throw new Error('Cost ID is required');
+  }
+
+  const cost = await Cost.findById(id);
+  if (!cost) {
+    throw new Error('Cost not found');
+  }
+
+  logger.info(`Retrieved cost: ${id}`);
+  return cost;
+}
+
 module.exports = {
   createCost,
+  getCosts,
+  getCostById,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES
 };
