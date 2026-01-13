@@ -546,9 +546,9 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 
 The database contains:
 - **25 users** (IDs 1-25)
-- **191 goals** (distributed across all users, 5-10 goals per user)
-- **1,126 budgets** (for users 1-25, across 13 months including past 12 months and current month)
-- **5,000 costs** (200 costs per user - income and expenses distributed across 24 months)
+- **184 goals** (distributed across all users, 5-10 goals per user)
+- **1,090 budgets** (for users 1-25, across 13 months including past 12 months and current month)
+- **5,000 costs** (200 costs per user - 3,578 expenses and 1,422 income, distributed across 24 months)
 - **600 cached reports** (cached monthly reports for past 24 months)
 
 ## Notes
