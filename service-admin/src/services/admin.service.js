@@ -2,21 +2,28 @@ const Log = require('../models/Log');
 const { logger } = require('../config/logger');
 
 /**
- * Get team members information
+ * Team members data
+ */
+const teamMembers = [
+  {
+    first_name: 'Gal',
+    last_name: 'Aviv'
+  },
+  {
+    first_name: 'Bar',
+    last_name: 'Bibi'
+  },
+  {
+    first_name: 'Ofir',
+    last_name: 'Avisror'
+  }
+];
+
+/**
+ * Get team members
  */
 function getTeamMembers() {
-  return {
-    team: [
-      {
-        name: 'Team Member 1',
-        role: 'Developer'
-      },
-      {
-        name: 'Team Member 2',
-        role: 'Developer'
-      }
-    ]
-  };
+  return teamMembers;
 }
 
 /**
