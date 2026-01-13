@@ -105,6 +105,17 @@ async function deleteGoal(goalId) {
 }
 
 /**
+ * Get goal by ID
+ */
+async function getGoalById(goalId) {
+  const goal = await Goal.findById(goalId);
+  if (!goal) {
+    throw new Error('Goal not found');
+  }
+  return goal;
+}
+
+/**
  * Get goal progress
  */
 async function getGoalProgress(goalId) {
@@ -134,6 +145,7 @@ async function getGoalProgress(goalId) {
 module.exports = {
   createGoal,
   getGoals,
+  getGoalById,
   updateGoal,
   deleteGoal,
   getGoalProgress

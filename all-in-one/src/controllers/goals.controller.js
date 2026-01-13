@@ -94,6 +94,31 @@ async function getGoals(req, res) {
 }
 
 /**
+ * Get goal by ID
+ */
+async function getGoalById(req, res) {
+  try {
+    const { id } = req.params;
+    const goal = await goalService.getGoalById(id);
+    res.json(goal);
+  } catch (error) {
+    logger.error('Error fetching goal:', error.message);
+    
+    if (error.message === 'Goal not found') {
+      return res.status(404).json({ 
+        id: 'NOT_FOUND',
+        message: error.message 
+      });
+    }
+
+    res.status(500).json({ 
+      id: 'SERVER_ERROR',
+      message: error.message 
+    });
+  }
+}
+
+/**
  * Update a goal
  */
 async function updateGoal(req, res) {
@@ -208,6 +233,7 @@ async function getGoalProgress(req, res) {
 module.exports = {
   createGoal,
   getGoals,
+  getGoalById,
   updateGoal,
   deleteGoal,
   getGoalProgress
