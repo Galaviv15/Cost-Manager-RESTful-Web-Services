@@ -139,9 +139,9 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get all budgets for user 4**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=4`
 - **Get all budgets for user 5**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=5`
 - **Get all budgets for user 15**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets?userid=15`
-- **Get budget status for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=1`
-- **Get budget status for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=2`
-- **Get budget status for user 10**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=10`
+- **Get budget status for user 1**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=1&year=2025&month=1`
+- **Get budget status for user 2**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=2&year=2025&month=1`
+- **Get budget status for user 10**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=10&year=2025&month=1`
 
 ### POST/PUT/DELETE Requests (Use Postman/cURL)
 
@@ -274,9 +274,9 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get analytics trends**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/trends?userid=1`
 - **Get category breakdown**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/category?userid=1`
 - **Get categories analytics**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/categories?userid=1`
-- **Get monthly summary**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/monthly?userid=1`
-- **Get comparison**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/comparison?userid=1`
-- **Get yearly analytics**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/yearly?userid=1`
+- **Get monthly summary**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/monthly?userid=1&year=2025`
+- **Get comparison**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/comparison?userid=1&year=2025&month=1`
+- **Get yearly analytics**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/analytics/yearly?userid=1&year=2025`
 
 ## Report Service
 
@@ -297,8 +297,6 @@ This will show all available services: users, goals, budgets, transactions, anal
 
 ### GET Requests (Open in Browser)
 - **Get all logs**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs`
-- **Get logs by endpoint**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs?endpoint=/api/users`
-- **Get logs by user**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs?userid=1`
 - **Get about/team**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/about`
 
 ## Database Summary
