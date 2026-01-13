@@ -25,9 +25,45 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get current user (authenticated)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/me` (requires authentication token)
 
 ### POST Requests (Use Postman/cURL)
-- **Register new user**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/register`
-- **Login**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/login`
-- **Create user**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+#### Register New User
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/register`
+
+**Body**:
+```json
+{
+  "id": 999999,
+  "first_name": "John",
+  "last_name": "Doe",
+  "birthday": "1990-05-15",
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### Login
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/login`
+
+**Body**:
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+#### Create User (Legacy - Backward Compatibility)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
+```json
+{
+  "id": 123456,
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "birthday": "1985-03-20"
+}
+```
 
 ## Goals Service
 
@@ -44,9 +80,55 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get goal progress** (replace :id with actual goal ID): `https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/69655e6c65b983e0277d0f4a/progress`
 
 ### POST/PUT/DELETE Requests (Use Postman/cURL)
-- **Create goal**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/goals`
-- **Update goal**: `PUT https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/:id`
-- **Delete goal**: `DELETE https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/:id`
+
+#### Create Goal
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/goals`
+
+**Body**:
+```json
+{
+  "userid": 1,
+  "title": "Save for vacation",
+  "description": "Save money for summer vacation",
+  "target_amount": 5000,
+  "current_amount": 0,
+  "deadline": "2025-08-01",
+  "category": "savings",
+  "currency": "ILS",
+  "status": "active"
+}
+```
+
+**Note**: 
+- `userid` (required): User ID (1-15)
+- `title` (required): Goal title
+- `target_amount` (required): Target amount to save
+- `current_amount` (optional, default: 0): Current saved amount
+- `deadline` (optional): Deadline date in format "YYYY-MM-DD"
+- `category` (optional): One of: food, health, housing, sports, education, salary, freelance, investment, business, gift, other, savings, debt_payment, emergency_fund
+- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
+- `status` (optional, default: "active"): One of: active, completed, paused
+
+#### Update Goal
+**URL**: `PUT https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/:id`
+
+**Body** (all fields optional, only include fields you want to update):
+```json
+{
+  "title": "Updated goal title",
+  "target_amount": 6000,
+  "current_amount": 1000,
+  "deadline": "2025-09-01",
+  "category": "savings",
+  "currency": "USD",
+  "status": "active"
+}
+```
+
+#### Delete Goal
+**URL**: `DELETE https://cost-manager-restful-web-services-u68h.onrender.com/api/goals/:id`
+
+**Body**: None required
 
 ## Budgets Service
 
@@ -62,16 +144,71 @@ This will show all available services: users, goals, budgets, transactions, anal
 - **Get budget status for user 10**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/status?userid=10`
 
 ### POST/PUT/DELETE Requests (Use Postman/cURL)
-- **Create budget**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets`
-- **Update budget**: `PUT https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/:id`
-- **Delete budget**: `DELETE https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/:id`
+
+#### Create Budget (Total Monthly Budget)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets`
+
+**Body**:
+```json
+{
+  "userid": 1,
+  "year": 2025,
+  "month": 1,
+  "type": "total",
+  "amount": 5000,
+  "currency": "ILS"
+}
+```
+
+#### Create Budget (Category-Specific Budget)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets`
+
+**Body**:
+```json
+{
+  "userid": 1,
+  "year": 2025,
+  "month": 1,
+  "type": "category",
+  "category": "food",
+  "amount": 2000,
+  "currency": "ILS"
+}
+```
+
+**Note**:
+- `userid` (required): User ID (1-15)
+- `year` (required): Year (2000-2100)
+- `month` (required): Month (1-12)
+- `type` (required): Either "total" or "category"
+- `category` (required if type is "category"): One of: food, health, housing, sports, education
+- `amount` (required): Budget amount (must be positive)
+- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
+
+#### Update Budget
+**URL**: `PUT https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/:id`
+
+**Body** (all fields optional, only include fields you want to update):
+```json
+{
+  "amount": 2500,
+  "currency": "USD"
+}
+```
+
+#### Delete Budget
+**URL**: `DELETE https://cost-manager-restful-web-services-u68h.onrender.com/api/budgets/:id`
+
+**Body**: None required
 
 ## Transactions Service
 
 ### POST Requests (Use Postman/cURL)
-- **Create transaction**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
 
-Body example:
+#### Create Transaction (Expense)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
 ```json
 {
   "type": "expense",
@@ -83,6 +220,48 @@ Body example:
   "payment_method": "credit_card"
 }
 ```
+
+#### Create Transaction (Income)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+
+**Body**:
+```json
+{
+  "type": "income",
+  "description": "Salary",
+  "category": "salary",
+  "userid": 1,
+  "sum": 10000,
+  "currency": "ILS"
+}
+```
+
+#### Create Transaction (with Authentication Token)
+**URL**: `POST https://cost-manager-restful-web-services-u68h.onrender.com/api/add`
+**Headers**: `Authorization: Bearer YOUR_TOKEN_HERE`
+
+**Body** (userid is optional when using token):
+```json
+{
+  "type": "expense",
+  "description": "Restaurant dinner",
+  "category": "food",
+  "sum": 200,
+  "currency": "ILS",
+  "payment_method": "credit_card"
+}
+```
+
+**Note**:
+- `type` (required): Either "income" or "expense"
+- `description` (required): Transaction description
+- `category` (required): 
+  - For expenses: food, health, housing, sports, education
+  - For income: salary, freelance, investment, business, gift, other
+- `userid` (required if no token): User ID (1-15)
+- `sum` (required): Transaction amount (must be positive)
+- `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
+- `payment_method` (optional): One of: credit_card, cash, bit, check
 
 ## Analytics Service
 
