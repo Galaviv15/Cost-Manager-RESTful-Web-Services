@@ -29,7 +29,7 @@ const logSchema = new mongoose.Schema({
   },
   method: {
     type: String,
-    enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    enum: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     description: 'HTTP method used'
   },
   timestamp: {
