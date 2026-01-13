@@ -21,7 +21,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/3`
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/4`
 - **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/5`
-- **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/15` (all users 1-20)
+- **Get user by ID**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/15` (all users 1-25)
 - **Get current user (authenticated)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/users/me` (requires authentication token)
 
 ### POST Requests (Use Postman/cURL)
@@ -101,7 +101,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 ```
 
 **Note**: 
-- `userid` (required): User ID (1-20)
+- `userid` (required): User ID (1-25)
 - `title` (required): Goal title
 - `target_amount` (required): Target amount to save
 - `current_amount` (optional, default: 0): Current saved amount
@@ -179,7 +179,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 ```
 
 **Note**:
-- `userid` (required): User ID (1-20)
+- `userid` (required): User ID (1-25)
 - `year` (required): Year (2000-2100)
 - `month` (required): Month (1-12)
 - `type` (required): Either "total" or "category"
@@ -228,7 +228,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 - **Get cost by ID** (use the _id from the costs list): `https://cost-manager-restful-web-services-u68h.onrender.com/api/costs/69655e6c65b983e0277d0f4a`
 
 **Query Parameters**:
-- `userid` (required): User ID (1-20) - or use authentication token
+- `userid` (required): User ID (1-25) - or use authentication token
 - `type` (optional): Filter by type - "income" or "expense"
 - `category` (optional): Filter by category
   - For expenses: food, health, housing, sports, education
@@ -493,7 +493,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 - `category` (required): 
   - For expenses: food, health, housing, sports, education
   - For income: salary, freelance, investment, business, gift, other
-- `userid` (required if no token): User ID (1-20)
+- `userid` (required if no token): User ID (1-25)
 - `sum` (required): Cost amount (must be positive)
 - `currency` (optional, default: "ILS"): One of: ILS, USD, EUR
 - `payment_method` (optional, only for expenses): One of: credit_card, cash, bit, check
@@ -532,7 +532,7 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 - **Get report (singular)**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/report?id=1&year=2025&month=1`
 
 **Note**:
-- `id` (required): User ID (1-20)
+- `id` (required): User ID (1-25)
 - `year` (required): Year (e.g., 2024, 2025)
 - `month` (required): Month (1-12)
 
@@ -545,10 +545,11 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 ## Database Summary
 
 The database contains:
-- **20 users** (IDs 1-20)
-- **78 goals** (distributed across all users)
-- **124 budgets** (for users 1-20, across 12 months and 2 years)
-- **10,000+ costs** (income and expenses for all users)
+- **25 users** (IDs 1-25)
+- **191 goals** (distributed across all users, 5-10 goals per user)
+- **1,126 budgets** (for users 1-25, across 13 months including past 12 months and current month)
+- **5,000 costs** (200 costs per user - income and expenses distributed across 24 months)
+- **600 cached reports** (cached monthly reports for past 24 months)
 
 ## Notes
 
@@ -560,7 +561,7 @@ The database contains:
 
 2. **Local Testing**: If running locally, replace the base URL with `http://localhost:3000` (or your local port)
 
-3. **User IDs**: The seed data creates users with IDs 1-20, so use those IDs in your queries.
+3. **User IDs**: The seed data creates users with IDs 1-25, so use those IDs in your queries.
 
 4. **Query Parameters**: Some endpoints require query parameters (like `userid`). Make sure to include them in the URL.
 
