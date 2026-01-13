@@ -13,7 +13,7 @@ function isCurrentMonth(year, month) {
 /**
  * Generate report from costs
  * This function implements the Computed Design Pattern by generating
- * reports that can be cached for past months
+ * reports that can be cached for past or future months
  */
 async function generateReport(userid, year, month) {
   const startDate = new Date(year, month - 1, 1);
@@ -96,7 +96,7 @@ async function getReport(userid, year, month) {
   const current = isCurrentMonth(year, month);
 
   if (!current) {
-    // Past month - check cache first
+    // Past or future month - check cache first
     let cachedReport = await Report.findOne({
       userid,
       year,
