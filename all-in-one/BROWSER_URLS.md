@@ -10,7 +10,7 @@ For local testing, use: `http://localhost:3000` (or the port your service is run
 
 - **Main Service**: `https://cost-manager-restful-web-services-u68h.onrender.com/`
 
-This will show all available services: users, goals, budgets, costs, analytics, reports, admin
+This will show all available services: users, goals, budgets, costs, analytics, reports, admin, logs
 
 ## Users Service
 
@@ -540,6 +540,16 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 
 ### GET Requests (Open in Browser)
 - **Get about/team**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/about`
+
+## Logs Service
+
+### GET Requests (Open in Browser)
+- **Get all logs**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs`
+
+**Note**:
+- Returns all log entries stored in the database
+- Logs are automatically created for every HTTP request and endpoint access
+- Logs include information about requests, responses, and errors
 
 ## Database Summary
 
