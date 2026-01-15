@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
 const Cost = require('../src/models/Cost');
+const Report = require('../src/models/Report');
 const app = require('../app');
 
 // Test database connection
@@ -21,6 +22,7 @@ afterEach(async () => {
   try {
     await User.deleteMany({});
     await Cost.deleteMany({});
+    await Report.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -477,6 +479,239 @@ describe('Cost Endpoints', () => {
       // Should use userid from token (2), not from body (999)
       expect(response.body).toHaveProperty('userid', 2);
       expect(response.body.userid).not.toBe(999);
+    });
+  });
+
+  describe('GET /api/report', () => {
+    test('should return report with correct format', async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      // Create test costs
+      await Cost.create({
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 1,
+        sum: 50,
+        created_at: new Date(year, month - 1, 15)
+      });
+
+      await Cost.create({
+        type: 'expense',
+        description: 'Book',
+        category: 'education',
+        userid: 1,
+        sum: 100,
+        created_at: new Date(year, month - 1, 20)
+      });
+
+      const response = await request(app)
+        .get(`/api/report?id=1&year=${year}&month=${month}`)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('userid', 1);
+      expect(response.body).toHaveProperty('year', year);
+      expect(response.body).toHaveProperty('month', month);
+      expect(response.body).toHaveProperty('costs');
+      expect(Array.isArray(response.body.costs)).toBe(true);
+    });
+
+    test('should return all expense categories even when empty', async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      const response = await request(app)
+        .get(`/api/report?id=1&year=${year}&month=${month}`)
+        .expect(200);
+
+      expect(response.body.costs.length).toBe(5); // All 5 expense categories
+      const expenseCategories = ['food', 'health', 'housing', 'sports', 'education'];
+      expenseCategories.forEach(category => {
+        const categoryObj = response.body.costs.find(c => c[category] !== undefined);
+        expect(categoryObj).toBeDefined();
+        expect(Array.isArray(categoryObj[category])).toBe(true);
+      });
+    });
+
+    test('should return error when required parameters are missing', async () => {
+      const response = await request(app)
+        .get('/api/report')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when user not found', async () => {
+      const response = await request(app)
+        .get('/api/report?id=999&year=2025&month=1')
+        .expect(404);
+
+      expect(response.body).toHaveProperty('id', 'NOT_FOUND');
+    });
+
+    test('should return error when month is invalid', async () => {
+      const response = await request(app)
+        .get('/api/report?id=1&year=2025&month=13')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should return error when month is less than 1', async () => {
+      const response = await request(app)
+        .get('/api/report?id=1&year=2025&month=0')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('id', 'VALIDATION_ERROR');
+    });
+
+    test('should include day, sum, and description in cost items', async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      await Cost.create({
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 1,
+        sum: 50,
+        created_at: new Date(year, month - 1, 17)
+      });
+
+      const response = await request(app)
+        .get(`/api/report?id=1&year=${year}&month=${month}`)
+        .expect(200);
+
+      const foodCategory = response.body.costs.find(c => c.food !== undefined);
+      expect(foodCategory).toBeDefined();
+      expect(foodCategory.food.length).toBe(1);
+      expect(foodCategory.food[0]).toHaveProperty('day', 17);
+      expect(foodCategory.food[0]).toHaveProperty('sum', 50);
+      expect(foodCategory.food[0]).toHaveProperty('description', 'Lunch');
+    });
+
+    test('should cache reports for past months (Computed Design Pattern)', async () => {
+      const now = new Date();
+      let pastMonthIndex = now.getMonth(); // 0-11 (current month index)
+      let pastYear = now.getFullYear();
+      
+      // Calculate previous month
+      if (pastMonthIndex === 0) {
+        // If current month is January (0), previous month is December (12) of previous year
+        pastMonthIndex = 11; // December index
+        pastYear = pastYear - 1;
+      } else {
+        pastMonthIndex = pastMonthIndex - 1;
+      }
+      
+      // Convert to 1-12 format for API (pastMonthIndex is 0-11, we need 1-12)
+      const pastMonth = pastMonthIndex + 1;
+
+      // Create cost in past month (Date constructor uses 0-11 for months)
+      await Cost.create({
+        type: 'expense',
+        description: 'Past expense',
+        category: 'food',
+        userid: 1,
+        sum: 50,
+        created_at: new Date(pastYear, pastMonthIndex, 15)
+      });
+
+      // First request - should generate and cache
+      const response1 = await request(app)
+        .get(`/api/report?id=1&year=${pastYear}&month=${pastMonth}`)
+        .expect(200);
+
+      expect(response1.body).toHaveProperty('userid', 1);
+
+      // Check that report was cached
+      const cachedReport = await Report.findOne({
+        userid: 1,
+        year: pastYear,
+        month: pastMonth
+      });
+      expect(cachedReport).toBeDefined();
+
+      // Second request - should return from cache
+      const response2 = await request(app)
+        .get(`/api/report?id=1&year=${pastYear}&month=${pastMonth}`)
+        .expect(200);
+
+      expect(response2.body).toHaveProperty('userid', 1);
+    });
+
+    test('should not cache reports for current month', async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      await Cost.create({
+        type: 'expense',
+        description: 'Current expense',
+        category: 'food',
+        userid: 1,
+        sum: 50,
+        created_at: new Date(year, month - 1, 15)
+      });
+
+      // First request - should generate but not cache
+      const response1 = await request(app)
+        .get(`/api/report?id=1&year=${year}&month=${month}`)
+        .expect(200);
+
+      expect(response1.body).toHaveProperty('userid', 1);
+
+      // Check that report was NOT cached
+      const cachedReport = await Report.findOne({
+        userid: 1,
+        year: year,
+        month: month
+      });
+      expect(cachedReport).toBeNull();
+    });
+
+    test('should only include expense costs in report (not income)', async () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      // Create expense
+      await Cost.create({
+        type: 'expense',
+        description: 'Lunch',
+        category: 'food',
+        userid: 1,
+        sum: 50,
+        created_at: new Date(year, month - 1, 15)
+      });
+
+      // Create income (should not appear in report)
+      await Cost.create({
+        type: 'income',
+        description: 'Salary',
+        category: 'salary',
+        userid: 1,
+        sum: 10000,
+        created_at: new Date(year, month - 1, 20)
+      });
+
+      const response = await request(app)
+        .get(`/api/report?id=1&year=${year}&month=${month}`)
+        .expect(200);
+
+      // Should only have expense categories
+      const foodCategory = response.body.costs.find(c => c.food !== undefined);
+      expect(foodCategory).toBeDefined();
+      expect(foodCategory.food.length).toBe(1);
+      expect(foodCategory.food[0].description).toBe('Lunch');
+
+      // Should not have income categories
+      const salaryCategory = response.body.costs.find(c => c.salary !== undefined);
+      expect(salaryCategory).toBeUndefined();
     });
   });
 });

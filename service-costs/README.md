@@ -8,6 +8,9 @@ Cost management service for the Cost Manager application.
 ## Endpoints
 
 - `POST /api/add` - Create a new cost (income or expense)
+- `GET /api/report` - Get monthly report (implements Computed Design Pattern)
+- `GET /api/costs` - Get costs with filters
+- `GET /api/costs/:id` - Get cost by ID
 
 ## Environment Variables
 

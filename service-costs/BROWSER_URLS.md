@@ -345,13 +345,71 @@ This will show the service status: `{"status":"ok","service":"costs","timestamp"
 
 8. **Health Check**: Visit the root URL (`/`) to verify the service is running.
 
-9. **Viewing Costs**: Use the GET `/api/costs` endpoint to retrieve costs with various filters. For aggregated data and reports, you can also use:
-   - Analytics service (for aggregated data)
-   - Reports service (for monthly reports)
-   - All-in-one service (for full API access)
+9. **Viewing Costs**: Use the GET `/api/costs` endpoint to retrieve costs with various filters.
 
-10. **Recurring Costs**: When creating a recurring cost, make sure to provide:
+10. **Monthly Reports**: Use the GET `/api/report` endpoint to get monthly reports. The service implements the Computed Design Pattern - reports for past months are cached for better performance.
+
+11. **Recurring Costs**: When creating a recurring cost, make sure to provide:
     - `recurring.enabled: true`
     - `recurring.frequency`: daily, weekly, monthly, or yearly
     - `recurring.next_date`: The next occurrence date (ISO format)
+
+## Monthly Report Endpoint
+
+### GET Requests (Open in Browser)
+
+#### Get Monthly Report
+
+- **Get report for user 1 (January 2025)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=1&year=2025&month=1`
+- **Get report for user 1 (February 2025)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=1&year=2025&month=2`
+- **Get report for user 1 (December 2024)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=1&year=2024&month=12`
+- **Get report for user 2 (January 2025)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=2&year=2025&month=1`
+- **Get report for user 15 (January 2025)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=15&year=2025&month=1`
+- **Get report for user 20 (January 2025)**: `https://cost-manager-restful-web-services-costs.onrender.com/api/report?id=20&year=2025&month=1`
+
+#### Query Parameters
+
+- `id` (required): User ID (1-25)
+- `year` (required): Year (e.g., 2024, 2025)
+- `month` (required): Month (1-12)
+
+**Example URL Structure**:
+```
+https://cost-manager-restful-web-services-costs.onrender.com/api/report?id={USER_ID}&year={YEAR}&month={MONTH}
+```
+
+#### Report Response Format
+
+The report returns a JSON object with the following structure:
+```json
+{
+  "userid": 123123,
+  "year": 2025,
+  "month": 11,
+  "costs": [
+    { "food": [{ "sum": 12, "description": "choco", "day": 17 }] },
+    { "education": [{ "sum": 82, "description": "math book", "day": 10 }] },
+    { "health": [] },
+    { "housing": [] },
+    { "sports": [] }
+  ]
+}
+```
+
+#### Report Features
+
+- **Computed Design Pattern**: Reports for past months are automatically cached in the database for faster retrieval
+- **Current Month**: Reports for the current month are always calculated fresh (not cached)
+- **Category Grouping**: Costs are grouped by category (food, health, housing, sports, education)
+- **Day Information**: Each cost includes the day of the month it was created
+- **Empty Categories**: All expense categories are included in the response, even if empty
+
+#### Notes on Reports
+
+1. **Query Parameters**: All parameters (`id`, `year`, `month`) are required
+2. **Month Format**: Month should be a number between 1-12 (1 = January, 12 = December)
+3. **Year Format**: Year should be a 4-digit number (e.g., 2024, 2025)
+4. **Caching**: Reports for past months are cached automatically - first request generates and caches, subsequent requests return cached data
+5. **Current Month**: Reports for the current month are always calculated fresh to ensure accuracy
+6. **Expense Categories Only**: The report shows only expense categories (food, health, housing, sports, education) as per project requirements
 
