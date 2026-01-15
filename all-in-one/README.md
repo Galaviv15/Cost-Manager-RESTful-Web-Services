@@ -20,16 +20,19 @@ A comprehensive Node.js/Express/MongoDB RESTful API for managing expenses and ge
 │       ├── users.js       # User management process
 │       ├── costs.js        # Cost management process
 │       ├── report.js       # Report generation process
-│       └── admin.js        # Admin/team information process
+│       ├── admin.js        # Admin/team information process
+│       └── logs.js         # Logs service process
 ├── tests/                 # Unit tests
 │   ├── users.test.js
 │   ├── costs.test.js
 │   ├── report.test.js
-│   └── admin.test.js
+│   ├── admin.test.js
+│   └── logs.test.js
 ├── app_users.js           # Entry point for users process (Port 3000)
 ├── app_costs.js           # Entry point for costs process (Port 3001)
 ├── app_report.js          # Entry point for report process (Port 3002)
 ├── app_admin.js           # Entry point for admin process (Port 3003)
+├── app_logs.js            # Entry point for logs process (Port 3007)
 ├── package.json
 ├── jest.config.js         # Jest test configuration
 ├── .env                   # Environment variables (create from .env.example)
@@ -54,6 +57,7 @@ PORT_USERS=3000
 PORT_COSTS=3001
 PORT_REPORT=3002
 PORT_ADMIN=3003
+PORT_LOGS=3007
 NODE_ENV=development
 LOG_LEVEL=info
 JWT_SECRET=your-secret-key-change-in-production
@@ -81,6 +85,9 @@ npm run start:report
 
 # Terminal 4: Admin Service
 npm run start:admin
+
+# Terminal 5: Logs Service
+npm run start:logs
 ```
 
 ## API Endpoints
@@ -363,6 +370,8 @@ Returns the list of team members (developers) with only first_name and last_name
 ]
 ```
 
+### Logs Service (Port 3004)
+
 #### GET /api/logs - List All Logs
 Returns all log entries stored in the MongoDB logs collection.
 
@@ -468,6 +477,7 @@ npm run test:coverage
 - `tests/costs.test.js` - Tests for cost endpoints
 - `tests/report.test.js` - Tests for report endpoint (including Computed Design Pattern)
 - `tests/admin.test.js` - Tests for admin endpoints
+- `tests/logs.test.js` - Tests for logs endpoints
 
 ## Technologies
 
@@ -485,7 +495,8 @@ The application consists of **four separate processes**:
 1. **User Process** (`app_users.js`): Handles user-related operations
 2. **Cost Process** (`app_costs.js`): Handles cost-related operations
 3. **Report Process** (`app_report.js`): Handles report generation with Computed Design Pattern
-4. **Admin Process** (`app_admin.js`): Handles admin operations (team info, logs)
+4. **Admin Process** (`app_admin.js`): Handles admin operations (team info)
+5. **Logs Process** (`app_logs.js`): Handles logs retrieval operations
 
 Each process runs independently on a separate port and connects to the same MongoDB database.
 

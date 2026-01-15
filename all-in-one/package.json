@@ -12,8 +12,9 @@
     "start:analytics": "node app_analytics.js",
     "start:report": "node app_report.js",
     "start:admin": "node app_admin.js",
+    "start:logs": "node app_logs.js",
     "dev": "nodemon app.js",
-    "dev:all": "concurrently \"npm run start:users\" \"npm run start:costs\" \"npm run start:budgets\" \"npm run start:goals\" \"npm run start:analytics\" \"npm run start:report\" \"npm run start:admin\"",
+    "dev:all": "concurrently \"npm run start:users\" \"npm run start:costs\" \"npm run start:budgets\" \"npm run start:goals\" \"npm run start:analytics\" \"npm run start:report\" \"npm run start:admin\" \"npm run start:logs\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

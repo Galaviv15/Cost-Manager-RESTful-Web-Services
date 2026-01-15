@@ -9,11 +9,5 @@ router.get('/api/about', (req, res, next) => {
   next();
 }, adminController.getAbout);
 
-// Get logs
-router.get('/api/logs', (req, res, next) => {
-  logEndpointAccess('/api/logs', 'GET');
-  next();
-}, adminController.getLogs);
-
 module.exports = router;
 

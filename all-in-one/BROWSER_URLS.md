@@ -539,7 +539,6 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 ## Admin Service
 
 ### GET Requests (Open in Browser)
-- **Get all logs**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs`
 - **Get about/team**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/about`
 
 ## Database Summary

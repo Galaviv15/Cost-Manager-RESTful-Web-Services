@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const pinoHttp = require('pino-http');
 const { connectDB } = require('../config/database');
+const Log = require('../models/Log');
 const { logger } = require('../config/logger');
 const { mongoLoggingMiddleware, logEndpointAccess } = require('../middleware/logging');
 
 const app = express();
-const PORT = process.env.PORT_ADMIN || 3003;
+const PORT = process.env.PORT_LOGS || 3007;
 
 // Middleware
 app.use(express.json());
@@ -17,45 +18,23 @@ app.use(mongoLoggingMiddleware);
 connectDB();
 
 /**
- * Team members data
- * Each team member should have first_name and last_name properties
- * matching the format used in the users collection
+ * GET /api/logs
+ * Get all logs from the logs collection
  */
-const teamMembers = [
-  {
-    first_name: 'Gal',
-    last_name: 'Aviv'
-  },
-  {
-    first_name: 'Bar',
-    last_name: 'Bibi'
-  },
-  {
-    first_name: 'Ofir',
-    last_name: 'Avisror'
-  }
-];
-
-/**
- * GET /api/about
- * Returns team members list
- * Returns only first_name and last_name for each team member
- */
-app.get('/api/about', (req, res) => {
-  logEndpointAccess('/api/about', 'GET');
+app.get('/api/logs', async (req, res) => {
+  logEndpointAccess('/api/logs', 'GET');
   
   try {
-    logger.info('About endpoint accessed');
-    res.json(teamMembers);
+    const logs = await Log.find({}).sort({ timestamp: -1 }).limit(1000);
+    res.json(logs);
   } catch (error) {
-    logger.error('Error in about endpoint:', error.message);
+    logger.error('Error fetching logs:', error.message);
     res.status(500).json({ 
       id: 'SERVER_ERROR',
       message: error.message 
     });
   }
 });
-
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -69,8 +48,9 @@ app.use((err, req, res, next) => {
 // Start server only if not in test environment
 if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
   app.listen(PORT, () => {
-    logger.info(`Admin service running on port ${PORT}`);
+    logger.info(`Logs service running on port ${PORT}`);
   });
 }
 
 module.exports = app;
+

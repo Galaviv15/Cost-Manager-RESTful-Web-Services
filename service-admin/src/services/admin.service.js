@@ -1,4 +1,3 @@
-const Log = require('../models/Log');
 const { logger } = require('../config/logger');
 
 /**
@@ -26,15 +25,7 @@ function getTeamMembers() {
   return teamMembers;
 }
 
-/**
- * Get all logs
- */
-async function getAllLogs() {
-  return await Log.find({}).sort({ timestamp: -1 }).limit(1000);
-}
-
 module.exports = {
-  getTeamMembers,
-  getAllLogs
+  getTeamMembers
 };
 

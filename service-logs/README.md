@@ -1,18 +1,18 @@
-# Admin Service
+# Logs Service
 
-Admin service for the Cost Manager application.
+Logs service for the Cost Manager application.
 
 ## Port
-3003
+3004
 
 ## Endpoints
 
-- `GET /api/about` - Get team members information
+- `GET /api/logs` - Get all logs
 
 ## Environment Variables
 
 - `MONGO_URI` - MongoDB connection string
-- `PORT_ADMIN` - Port number (default: 3003)
+- `PORT_LOGS` - Port number (default: 3007)
 - `NODE_ENV` - Environment (development/production)
 - `LOG_LEVEL` - Logging level
 
@@ -32,5 +32,17 @@ For development with auto-reload:
 
 ```bash
 npm run dev
+```
+
+## Testing
+
+```bash
+npm test
+```
+
+For test coverage:
+
+```bash
+npm run test:coverage
 ```
 
