@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const Transaction = require('../models/Transaction');
+const Cost = require('../models/Cost');
 const { logger } = require('../config/logger');
 
 /**
@@ -39,21 +39,21 @@ async function getUserById(userId) {
 }
 
 /**
- * Get user by ID with transaction totals
+ * Get user by ID with cost totals
  */
 async function getUserWithTotals(userId) {
   const user = await getUserById(userId);
 
-  // Get total transactions for this user
-  const transactions = await Transaction.find({ userid: userId });
+  // Get total costs for this user
+  const costs = await Cost.find({ userid: userId });
   
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.sum, 0);
+  const totalExpenses = costs
+    .filter(c => c.type === 'expense')
+    .reduce((sum, c) => sum + c.sum, 0);
   
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.sum, 0);
+  const totalIncome = costs
+    .filter(c => c.type === 'income')
+    .reduce((sum, c) => sum + c.sum, 0);
   
   const balance = totalIncome - totalExpenses;
 
@@ -69,21 +69,21 @@ async function getUserWithTotals(userId) {
 }
 
 /**
- * Get current authenticated user with transaction totals
+ * Get current authenticated user with cost totals
  */
 async function getCurrentUserWithTotals(userId) {
   const user = await getUserById(userId);
 
-  // Get total transactions for this user
-  const transactions = await Transaction.find({ userid: userId });
+  // Get total costs for this user
+  const costs = await Cost.find({ userid: userId });
   
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.sum, 0);
+  const totalExpenses = costs
+    .filter(c => c.type === 'expense')
+    .reduce((sum, c) => sum + c.sum, 0);
   
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.sum, 0);
+  const totalIncome = costs
+    .filter(c => c.type === 'income')
+    .reduce((sum, c) => sum + c.sum, 0);
   
   const balance = totalIncome - totalExpenses;
 

@@ -11,14 +11,14 @@ function validateEmail(email) {
 }
 
 /**
- * Validate transaction type
+ * Validate cost type
  */
-function validateTransactionType(type) {
+function validateCostType(type) {
   return ['income', 'expense'].includes(type.toLowerCase());
 }
 
 /**
- * Validate transaction category based on type
+ * Validate cost category based on type
  */
 function validateCategory(category, type, expenseCategories, incomeCategories) {
   const normalizedCategory = category.toLowerCase();
@@ -59,7 +59,7 @@ function validateYear(year) {
 
 module.exports = {
   validateEmail,
-  validateTransactionType,
+  validateCostType,
   validateCategory,
   validateDate,
   validatePositiveNumber,

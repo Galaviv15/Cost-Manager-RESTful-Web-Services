@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const User = require('../src/models/User');
-const Transaction = require('../src/models/Transaction');
+const Cost = require('../src/models/Cost');
 const app = require('../app');
 
 // Test database connection
@@ -20,7 +20,7 @@ beforeAll(async () => {
 afterEach(async () => {
   try {
     await User.deleteMany({});
-    await Transaction.deleteMany({});
+    await Cost.deleteMany({});
   } catch (error) {
     // Ignore errors during cleanup
   }
@@ -170,8 +170,8 @@ describe('User Endpoints', () => {
         birthday: new Date('1990-01-01')
       });
 
-      // Create transactions for user
-      await Transaction.create({
+      // Create costs for user
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',
@@ -179,7 +179,7 @@ describe('User Endpoints', () => {
         sum: 50
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Book',
         category: 'education',
@@ -476,7 +476,7 @@ describe('User Endpoints', () => {
       expect(response.body).not.toHaveProperty('password');
     });
 
-    test('should return user with transaction totals when authenticated', async () => {
+    test('should return user with cost totals when authenticated', async () => {
       // Register a user
       const registerResponse = await request(app)
         .post('/api/register')
@@ -492,8 +492,8 @@ describe('User Endpoints', () => {
 
       const token = registerResponse.body.token;
 
-      // Create transactions
-      await Transaction.create({
+      // Create costs
+      await Cost.create({
         type: 'income',
         description: 'Salary',
         category: 'salary',
@@ -501,7 +501,7 @@ describe('User Endpoints', () => {
         sum: 5000
       });
 
-      await Transaction.create({
+      await Cost.create({
         type: 'expense',
         description: 'Lunch',
         category: 'food',

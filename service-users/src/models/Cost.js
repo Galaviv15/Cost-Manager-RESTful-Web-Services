@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
 /**
- * Transaction Schema
- * Represents a unified income/expense transaction entry
- * Replaces the Cost model with support for both income and expenses
+ * Cost Schema
+ * Represents a unified income/expense cost entry
+ * Supports both income and expenses with type field
  */
-const transactionSchema = new mongoose.Schema({
+const costSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
     enum: ['income', 'expense'],
     lowercase: true,
-    description: 'Type of transaction: income or expense'
+    description: 'Type of cost: income or expense'
   },
   description: {
     type: String,
@@ -37,7 +37,7 @@ const transactionSchema = new mongoose.Schema({
   sum: {
     type: Number,
     required: true,
-    min: [0, 'Transaction sum must be a positive number']
+    min: [0, 'Cost sum must be a positive number']
   },
   created_at: {
     type: Date,
@@ -70,15 +70,15 @@ const transactionSchema = new mongoose.Schema({
     },
     next_date: {
       type: Date,
-      description: 'Next occurrence date for recurring transactions'
+      description: 'Next occurrence date for recurring costs'
     }
   }
 }, { timestamps: true });
 
 // Index for efficient queries
-transactionSchema.index({ userid: 1, type: 1, created_at: -1 });
-transactionSchema.index({ userid: 1, category: 1 });
-transactionSchema.index({ userid: 1, 'recurring.enabled': 1 });
+costSchema.index({ userid: 1, type: 1, created_at: -1 });
+costSchema.index({ userid: 1, category: 1 });
+costSchema.index({ userid: 1, 'recurring.enabled': 1 });
 
-module.exports = mongoose.model('Transaction', transactionSchema);
+module.exports = mongoose.model('Cost', costSchema);
 
