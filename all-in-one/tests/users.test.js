@@ -170,7 +170,7 @@ describe('User Endpoints', () => {
         birthday: new Date('1990-01-01')
       });
 
-      // Create transactions for user
+      // Create costs for user
       await Cost.create({
         type: 'expense',
         description: 'Lunch',
@@ -476,7 +476,7 @@ describe('User Endpoints', () => {
       expect(response.body).not.toHaveProperty('password');
     });
 
-    test('should return user with transaction totals when authenticated', async () => {
+    test('should return user with cost totals when authenticated', async () => {
       // Register a user
       const registerResponse = await request(app)
         .post('/api/register')
@@ -492,7 +492,7 @@ describe('User Endpoints', () => {
 
       const token = registerResponse.body.token;
 
-      // Create transactions
+      // Create costs
       await Cost.create({
         type: 'income',
         description: 'Salary',

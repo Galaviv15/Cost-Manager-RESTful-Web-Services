@@ -1,5 +1,5 @@
 const costService = require('../services/cost.service');
-const { validateTransactionType, validateCategory, validateDate, validatePositiveNumber } = require('../utils/validators');
+const { validateCostType, validateCategory, validateDate, validatePositiveNumber } = require('../utils/validators');
 const { logger } = require('../config/logger');
 
 /**
@@ -18,7 +18,7 @@ async function createCost(req, res) {
     }
 
     // Validate type
-    if (!validateTransactionType(type)) {
+    if (!validateCostType(type)) {
       return res.status(400).json({ 
         id: 'VALIDATION_ERROR',
         message: 'Invalid type. Must be either "income" or "expense"' 

@@ -48,7 +48,7 @@ describe('Report Endpoints', () => {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      // Create test transactions
+      // Create test costs
       await Cost.create({
         type: 'expense',
         description: 'Lunch',
@@ -178,7 +178,7 @@ describe('Report Endpoints', () => {
       // Convert to 1-12 format for API (pastMonthIndex is 0-11, we need 1-12)
       const pastMonth = pastMonthIndex + 1;
 
-      // Create transaction in past month (Date constructor uses 0-11 for months)
+      // Create cost in past month (Date constructor uses 0-11 for months)
       await Cost.create({
         type: 'expense',
         description: 'Past expense',

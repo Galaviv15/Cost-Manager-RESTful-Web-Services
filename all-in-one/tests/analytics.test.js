@@ -42,7 +42,7 @@ describe('Analytics Endpoints', () => {
 
   describe('GET /api/analytics/summary', () => {
     test('should return financial summary', async () => {
-      // Create transactions
+      // Create costs
       await Cost.create({
         type: 'income',
         description: 'Salary',
@@ -90,7 +90,7 @@ describe('Analytics Endpoints', () => {
     test('should return monthly trends', async () => {
       const year = 2025;
       
-      // Create transactions for different months
+      // Create costs for different months
       await Cost.create({
         type: 'income',
         description: 'Salary',
@@ -208,7 +208,7 @@ describe('Analytics Endpoints', () => {
       const year = 2025;
       const month = 2; // February
 
-      // Current month transactions
+      // Current month costs
       await Cost.create({
         type: 'income',
         description: 'Salary',
@@ -227,7 +227,7 @@ describe('Analytics Endpoints', () => {
         created_at: new Date(year, month - 1, 20)
       });
 
-      // Previous month transactions
+      // Previous month costs
       await Cost.create({
         type: 'income',
         description: 'Salary',
@@ -261,7 +261,7 @@ describe('Analytics Endpoints', () => {
     test('should return yearly report', async () => {
       const year = 2025;
 
-      // Create transactions for different months
+      // Create costs for different months
       await Cost.create({
         type: 'income',
         description: 'Salary',
