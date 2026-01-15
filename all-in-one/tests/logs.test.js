@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { connectDB } = require('../src/config/database');
 const Log = require('../src/models/Log');
-const app = require('../app_logs');
+const app = require('../app');
 
 // Test database connection
 beforeAll(async () => {
