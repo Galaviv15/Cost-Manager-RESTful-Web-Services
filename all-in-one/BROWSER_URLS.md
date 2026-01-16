@@ -546,10 +546,47 @@ This will show all available services: users, goals, budgets, costs, analytics, 
 ### GET Requests (Open in Browser)
 - **Get all logs**: `https://cost-manager-restful-web-services-u68h.onrender.com/api/logs`
 
-**Note**:
+**Response Example**:
+```json
+[
+  {
+    "id": 1,
+    "message": "GET /api/logs",
+    "level": "info",
+    "endpoint": "/api/logs",
+    "method": "GET",
+    "timestamp": "2026-01-16T15:46:06.544Z",
+    "status_code": 200
+  },
+  {
+    "id": 2,
+    "message": "POST /api/add",
+    "level": "info",
+    "endpoint": "/api/add",
+    "method": "POST",
+    "timestamp": "2026-01-16T15:45:30.123Z",
+    "userid": 123123,
+    "status_code": 201
+  }
+]
+```
+
+**Response**: Returns an array of log objects. Each log entry includes:
+- `id`: Unique log entry ID
+- `message`: Log message content
+- `level`: Log level (info, error, warn, debug)
+- `endpoint`: The endpoint that was accessed
+- `method`: HTTP method used (GET, POST, PUT, DELETE, etc.)
+- `timestamp`: When the log was created
+- `userid`: User ID if applicable (optional)
+- `status_code`: HTTP status code of the response (optional)
+
+**Notes**:
 - Returns all log entries stored in the database
 - Logs are automatically created for every HTTP request and endpoint access
 - Logs include information about requests, responses, and errors
+- If no logs exist, the endpoint returns an empty array `[]`
+- Logs are stored in the MongoDB `logs` collection
 
 ## Database Summary
 

@@ -1,9 +1,9 @@
 # Logs Service
 
-Logs service for the Cost Manager application.
+Logs service for the Cost Manager application. This service handles logging functionality and provides access to all log entries stored in the database.
 
 ## Port
-3004
+3007
 
 ## Endpoints
 
