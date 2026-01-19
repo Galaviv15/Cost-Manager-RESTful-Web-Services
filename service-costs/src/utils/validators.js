@@ -14,6 +14,7 @@ function validateEmail(email) {
  * Validate cost type
  */
 function validateCostType(type) {
+  if (!type) return false;
   return ['income', 'expense'].includes(type.toLowerCase());
 }
 

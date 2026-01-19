@@ -7,13 +7,13 @@ const { logger } = require('../config/logger');
  */
 async function createCost(req, res) {
   try {
-    const { type, description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = req.body;
+    const { type = 'expense', description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = req.body;
 
     // Validate required fields
-    if (!type || !description || !category || (userid === undefined && !req.user) || sum === undefined) {
-      return res.status(400).json({ 
+    if (!description || !category || (userid === undefined && !req.user) || sum === undefined) {
+      return res.status(400).json({
         id: 'VALIDATION_ERROR',
-        message: 'Missing required fields: type, description, category, userid, and sum are required' 
+        message: 'Missing required fields: description, category, userid, and sum are required'
       });
     }
 
