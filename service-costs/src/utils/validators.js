@@ -22,6 +22,7 @@ function validateCostType(type) {
  * Validate cost category based on type
  */
 function validateCategory(category, type, expenseCategories, incomeCategories) {
+  if (!type) return false;
   const normalizedCategory = category.toLowerCase();
   const validCategories = type.toLowerCase() === 'income' ? incomeCategories : expenseCategories;
   return validCategories.includes(normalizedCategory);

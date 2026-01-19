@@ -9,7 +9,7 @@ const INCOME_CATEGORIES = ['salary', 'freelance', 'investment', 'business', 'gif
  * Create a new cost
  */
 async function createCost(costData, userIdFromToken = null) {
-  let { type, description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = costData;
+  let { type = 'expense', description, category, userid, sum, tags, recurring, created_at, currency, payment_method } = costData;
   
   // If user is authenticated, use their userid from token
   if (userIdFromToken) {
